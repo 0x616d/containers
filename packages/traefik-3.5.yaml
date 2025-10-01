@@ -1,0 +1,37 @@
+package:
+  name: traefik-3.5
+  version: 3.5.3
+  epoch: 0
+  description: The Cloud Native Application Proxy
+  copyright:
+    - license: MIT
+
+pipeline:
+  - uses: fetch
+    with:
+      expected-sha256: 764a7a927148e71ed1a41597873c9bd0414515a4e73060ed2810b017fcf2e262
+      uri: https://github.com/traefik/traefik/releases/download/v${{package.version}}/traefik-v${{package.version}}.src.tar.gz
+
+  - uses: go/build
+    environment:
+      CGO_ENABLED: 0
+    with:
+      packages: ./cmd/traefik
+      output: traefik
+      strip: -s -w -buildid=
+      ldflags: >
+        -X github.com/traefik/traefik/v3/pkg/version.Version=${{package.version}}
+        -X github.com/traefik/traefik/v3/pkg/version.BuildDate=$(date -d @"${SOURCE_DATE_EPOCH:-0}" -u '+%Y-%m-%dT%TZ')
+
+update:
+  enabled: false
+  github:
+    identifier: traefik/traefik
+    tag-filter: v3.5.
+    strip-prefix: v
+
+test:
+  pipeline:
+    - runs: |
+        set -o pipefail
+        traefik version | grep ${{package.version}}

@@ -1,0 +1,13 @@
+diff --git a/cmd/alps/main.go b/cmd/alps/main.go
+index 5a00957..447265f 100644
+--- a/cmd/alps/main.go
++++ b/cmd/alps/main.go
+@@ -31,7 +31,7 @@ func main() {
+ 		loginKey string
+ 		options  alps.Options
+ 	)
+-	flag.StringVar(&options.Theme, "theme", "", "default theme")
++	flag.StringVar(&options.Theme, "theme", "alps", "default theme")
+ 	flag.StringVar(&addr, "addr", ":1323", "listening address")
+ 	flag.BoolVar(&options.Debug, "debug", false, "enable debug logs")
+ 	flag.StringVar(&loginKey, "login-key", "", "Fernet key for login persistence")

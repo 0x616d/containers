@@ -1,0 +1,40 @@
+package:
+  name: alps
+  version: 0_git20250811
+  epoch: 0
+  description: A simple and extensible webmail
+  copyright:
+    - license: MIT
+
+pipeline:
+  - uses: git-checkout
+    with:
+      expected-commit: 2494da2bd98802a1e71dfe1712e59c577ef07d1f
+      repository: https://git.sr.ht/~migadu/alps
+      branch: master
+
+  - uses: patch
+    with:
+      patches: default-theme.patch
+
+  - uses: go/build
+    environment:
+      CGO_ENABLED: 0
+    with:
+      packages: ./cmd/alps
+      output: alps
+      strip: -s -w -buildid=
+      ldflags: >
+        -X main.themesPath=/usr/share/alps/themes
+
+  - name: install themes
+    runs: |
+      mkdir -p ${{targets.contextdir}}/usr/share/alps
+      cp -a themes ${{targets.contextdir}}/usr/share/alps
+
+update:
+  enabled: false
+  git: {}
+  schedule:
+    period: daily
+    reason: upstream project does not support tags or releases

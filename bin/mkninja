@@ -1,0 +1,232 @@
+#!/usr/bin/env python3
+
+from pathlib import Path
+
+import os
+import sys
+import platform
+
+import yaml
+import ninja
+
+
+def get_arch(x: str) -> dict | None:
+    match x:
+        case "x86_64" | "amd64":
+            return {"name": "x86_64", "displayname": "amd64"}
+        case "x86" | "386" | "i386":
+            return {"name": "x86", "displayname": "i386"}
+        case "aarch64" | "arm64" | "armv8":
+            return {"name": "aarch64", "displayname": "arm64"}
+        case "armv7" | "arm/v7":
+            return {"name": "armv7", "displayname": "armv7"}
+        case "armhf" | "arm/v6" | "armv6":
+            return {"name": "armhf", "displayname": "armv6"}
+        case "loongarch64" | "loong64":
+            return {"name": "loongarch64", "displayname": "loong64"}
+        case "ppc64le":
+            return {"name": "ppc64le", "displayname": "ppc64le"}
+        case "riscv64":
+            return {"name": "riscv64", "displayname": "riscv64"}
+        case "s390x":
+            return {"name": "s390x", "displayname": "s390x"}
+        case _:
+            return None
+
+
+def get_packages() -> dict:
+    packages = {}
+    for package in Path("packages").glob("*.yaml"):
+        with open(package.absolute(), "r") as f:
+            data = yaml.safe_load(f)
+
+        name = data["package"]["name"]
+        version = data["package"]["version"]
+        release = data["package"]["epoch"]
+
+        dependencies = []
+        if (
+            "environment" in data
+            and "contents" in data["environment"]
+            and "packages" in data["environment"]["contents"]
+        ):
+            for d in data["environment"]["contents"]["packages"]:
+                if d.endswith("@local"):
+                    dependencies.append(d.removesuffix("@local"))
+
+        runtime_dependencies = []
+        if (
+            "dependencies" in data["package"]
+            and "runtime" in data["package"]["dependencies"]
+        ):
+            for d in data["package"]["dependencies"]["runtime"]:
+                if d.endswith("@local"):
+                    runtime_dependencies.append(d.removesuffix("@local"))
+
+        packages[name] = {
+            "version": version,
+            "release": release,
+            "dependencies": dependencies,
+            "runtime-dependencies": runtime_dependencies,
+        }
+    return packages
+
+
+def get_images(packages: dict) -> dict:
+    images = {}
+    for image in Path("images").glob("*.yaml"):
+        with open(image.absolute(), "r") as f:
+            data = yaml.safe_load(f)
+
+        displayname = data["annotations"]["org.opencontainers.image.title"]
+
+        tag = packages[data["annotations"]["dev.chainguard.package.main"]]["version"]
+        pkgs = packages[data["annotations"]["dev.chainguard.package.main"]]["runtime-dependencies"]
+
+        for d in data["contents"]["packages"]:
+            if d.endswith("@local"):
+                pkgs.append(d.removesuffix("@local"))
+
+        images[image.stem] = {
+            "dependencies": pkgs,
+            "displayname": displayname,
+            "tag": tag,
+        }
+    return images
+
+
+def main():
+    nw = ninja.Writer(sys.stdout, 158)
+
+    packages = get_packages()
+    images = get_images(packages)
+
+    arches = []
+    if "ARCH" in os.environ:
+        for x in os.environ["ARCH"].split(","):
+            if arch := get_arch(x):
+                arches.append(arch)
+    else:
+        arches = [get_arch(platform.machine())]
+
+    defaults = {
+        "alpine_branch": "edge",
+        "ocirepo": "ghcr.io/0x616d/containers",
+        "melange": "cgr.dev/chainguard/melange",
+        "apko": "cgr.dev/chainguard/apko",
+        "melange_flags": "",
+        "apko_flags": "",
+        "melange_cachedir": "./cache/melange",
+        "apk_cachedir": "./cache/melange",
+        "packages_outdir": "./out/pkg",
+        "workdir": os.getcwd(),
+    }
+
+    for key, val in defaults.items():
+        nw.variable(key, os.environ.get(key.upper(), val))
+
+    nw.newline()
+
+    nw.rule(
+        "melange-build",
+        "docker run --name melange --hostname melange --network host --privileged --rm -i"
+        + " -v '${melange_cachedir}':/cache/melange"
+        + " -v '${apk_cachedir}':/cache/apk"
+        + " -v '${packages_outdir}':/packages"
+        + " -v '${workdir}':/work"
+        + " $melange build /work/'${in}'"
+        + " --arch '${arch}'"
+        + " --source-dir /work/packages/'${package}'"
+        + " --pipeline-dir /work/pipelines"
+        + " --cache-dir /cache/melange"
+        + " --apk-cache-dir /cache/apk"
+        + " --out-dir /packages"
+        + " --signing-key /work/local.rsa"
+        + " --repository-append 'https://dl-cdn.alpinelinux.org/alpine/${alpine_branch}/main'"
+        + " --repository-append 'https://dl-cdn.alpinelinux.org/alpine/${alpine_branch}/community'"
+        + " --package-append alpine-release ${melange_flags}",
+    )
+
+    nw.newline()
+
+    nw.rule(
+        "apko-publish",
+        "docker run --name apko --hostname apko --network host --privileged --rm -i"
+        + " -v /var/run/docker.sock:/var/run/docker.sock"
+        + " -v ~/.docker:/root/.docker"
+        + " -v '${melange_cachedir}':/cache/melange"
+        + " -v '${apk_cachedir}':/cache/apk"
+        + " -v '${packages_outdir}':/packages"
+        + " -v '${workdir}':/work"
+        + " $apko publish /work/'${in}' '${ocirepo}/${displayname}:${tag}-${displayarch}'"
+        + " --arch '${arch}'"
+        + " --cache-dir /cache/apk"
+        + " --keyring-append /work/local.rsa.pub"
+        + " --repository-append '@local /packages'"
+        + " --repository-append 'https://dl-cdn.alpinelinux.org/alpine/${alpine_branch}/main'"
+        + " --repository-append 'https://dl-cdn.alpinelinux.org/alpine/${alpine_branch}/community'"
+        + " --package-append alpine-release ${apko_flags} | tee 'digest+${displayname}+${tag}+${displayarch}'",
+    )
+
+    nw.newline()
+
+    for xarch in arches:
+        arch = xarch["name"]
+        displayarch = xarch["displayname"]
+
+        for package in packages:
+            version = packages[package]["version"]
+            release = packages[package]["release"]
+
+            dependencies = []
+            for d in packages[package]["dependencies"]:
+                dependencies.append(f"pkg-{d}-{showarch}")
+
+            nw.build(
+                rule="melange-build",
+                outputs=f"$packages_outdir/{arch}/{package}-{version}-r{release}.apk",
+                inputs=f"packages/{package}.yaml",
+                order_only=dependencies,
+                variables={"arch": arch, "package": package},
+            )
+
+            nw.build(
+                rule="phony",
+                outputs=f"pkg-{package}-{displayarch}",
+                inputs=f"$packages_outdir/{arch}/{package}-{version}-r{release}.apk",
+            )
+
+            nw.newline()
+
+        for image in images:
+            displayname = images[image]["displayname"]
+            tag = images[image]["tag"]
+
+            dependencies = []
+            for d in images[image]["dependencies"]:
+                dependencies.append(f"pkg-{d}-{displayarch}")
+
+            nw.build(
+                rule="apko-publish",
+                outputs=f"digest+{displayname}+{tag}+{displayarch}",
+                inputs=f"images/{image}.yaml",
+                order_only=dependencies,
+                variables={
+                    "arch": arch,
+                    "displayarch": displayarch,
+                    "displayname": displayname,
+                    "tag": tag,
+                },
+            )
+
+            nw.build(
+                rule="phony",
+                outputs=f"publish-{image}-{displayarch}",
+                inputs=f"digest+{displayname}+{tag}+{displayarch}",
+            )
+
+            nw.newline()
+
+
+if __name__ == "__main__":
+    main()

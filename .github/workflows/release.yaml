@@ -1,0 +1,135 @@
+---
+name: Release
+
+on:
+  workflow_dispatch:
+
+env:
+  OCIREPO: 'ghcr.io/${{ github.repository }}'
+
+jobs:
+
+  prepare:
+    name: prepare
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      epoch: ${{ steps.epoch.outputs.epoch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+
+      - name: Matrix
+        id: matrix
+        shell: python
+        run: |
+          import os
+          import json
+          from pathlib import Path
+
+          platforms = [
+              {"arch": "amd64", "runner": "ubuntu-24.04"},
+              {"arch": "arm64", "runner": "ubuntu-24.04-arm"},
+          ]
+
+          matrix = []
+
+          for image in Path("images").glob("*.yaml"):
+              for platform in platforms:
+                  matrix.append({"I": image.stem, "A": platform["arch"], "R": platform["runner"]})
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              print(f"matrix={json.dumps({'include': matrix})}", file=f)
+
+  release:
+    name: release ${{ matrix.I }} for ${{ matrix.A }}
+    needs: prepare
+    strategy:
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ${{ matrix.R }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+
+      - name: Setup signing key
+        run: |
+          cat > local.rsa <<EOF
+          ${{ secrets.SIGNING_KEY }}
+          EOF
+
+      - name: Login to GitHub Container Registry
+        run: |
+          docker login --password-stdin -u ${{ github.repository_owner }} ghcr.io <<EOF
+          ${{ github.token }}
+          EOF
+
+      - name: Install ninja
+        run: |
+          pip install ninja
+
+      - name: Generate build.ninja
+        env:
+          ALPINE_BRANCH: v3.22
+          MELANGE: cgr.dev/chainguard/melange@sha256:73afb5727d6ebf94adf5269133008239b2f40f68fa5cae24222989bd4e76837d  # 0.31.4
+          APKO: cgr.dev/chainguard/apko@sha256:b940eb2485993ddd319bbb19875991847eca8e66f1a87063a1f1003a70c1f06f  # 0.30.13
+        run: |
+          bin/mkbuild.ninja | tee build.ninja
+
+      - name: Publish ${{ matrix.I }} for ${{ matrix.A }}
+        run: |
+          ninja publish-${{ matrix.I }}-${{ matrix.A }}
+
+      - name: Upload digest
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # 4.6.2
+        with:
+          name: digest-${{ matrix.I }}-${{ matrix.A }}
+          path: digest*
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
+
+  merge:
+    needs:
+      - release
+    permissions:
+      packages: write
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # 5.0.0
+        with:
+          pattern: |
+            digest-*
+          merge-multiple: true
+
+      - name: Login to GitHub Container Registry
+        run: |
+          docker login --password-stdin -u ${{ github.repository_owner }} ghcr.io <<EOF
+          ${{ github.token }}
+          EOF
+
+      - name: Create image list
+        shell: python
+        run: |
+          from pathlib import Path
+
+          index = set()
+
+          for f in Path.cwd().glob("digest+*"):
+              parts = f.name.split("+")
+              image = f"{parts[1]}:{parts[2]}"
+              if image not in index:
+                  index.add(image)
+
+          with open("images.txt", "w", encoding="utf-8") as f:
+              for image in index:
+                  f.write(f"{image}\n")
+
+      - name: Create manifest list and push
+        run: |
+          while IFS=: read -r image tag; do
+              docker buildx imagetools create -t "$OCIREPO"/"$image":"$tag" $(cat digest+"$image"+"$tag"+*)
+          done < images.txt
