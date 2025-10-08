@@ -1,0 +1,30 @@
+contents:
+  packages:
+    - tzdata
+    - ca-certificates-bundle
+    - webdav@local
+
+entrypoint:
+  command: /usr/bin/webdav
+
+accounts:
+  run-as: 65532
+  users:
+    - uid: 65532
+      username: webdav
+  groups:
+    - gid: 65532
+      groupname: webdav
+
+paths:
+  - path: /var/lib/webdav
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o755
+
+work-dir: /usr/lib/webdav
+
+annotations:
+  org.opencontainers.image.title: webdav
+  dev.chainguard.package.main: webdav
