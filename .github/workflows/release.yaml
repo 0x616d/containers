@@ -3,6 +3,11 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      images:
+        required: true
+        default: all
+        description: images to release
 
 env:
   OCIREPO: 'ghcr.io/${{ github.repository }}'
@@ -34,9 +39,16 @@ jobs:
 
           matrix = []
 
-          for image in Path("images").glob("*.yaml"):
-              for platform in platforms:
-                  matrix.append({"I": image.stem, "A": platform["arch"], "R": platform["runner"]})
+          if "${{ github.event.inputs.images || 'all' }}" == "all":
+              for image in Path("images").glob("*.yaml"):
+                  for platform in platforms:
+                      matrix.append({"I": image.stem, "A": platform["arch"], "R": platform["runner"]})
+          else:
+              for image in "${{ github.event.inputs.images }}".split(","):
+                  if not Path(f"images/{image}.yaml").is_file():
+                      continue
+                  for platform in platforms:
+                      matrix.append({"I": image, "A": platform["arch"], "R": platform["runner"]})
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               print(f"matrix={json.dumps({'include': matrix})}", file=f)
