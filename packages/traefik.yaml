@@ -1,5 +1,5 @@
 package:
-  name: traefik-3.5
+  name: traefik
   version: 3.5.3
   epoch: 0
   description: The Cloud Native Application Proxy

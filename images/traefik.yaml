@@ -2,7 +2,7 @@ contents:
   packages:
     - tzdata
     - ca-certificates-bundle
-    - traefik-3.5@local
+    - traefik@local
 
 entrypoint:
   command: /usr/bin/traefik
@@ -33,4 +33,4 @@ work-dir: /var/lib/traefik
 
 annotations:
   org.opencontainers.image.title: traefik
-  dev.chainguard.package.main: traefik-3.5
+  dev.chainguard.package.main: traefik
