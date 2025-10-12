@@ -1,5 +1,3 @@
-diff --git a/cmd/alps/main.go b/cmd/alps/main.go
-index 5a00957..447265f 100644
 --- a/cmd/alps/main.go
 +++ b/cmd/alps/main.go
 @@ -31,7 +31,7 @@ func main() {
