@@ -84,7 +84,7 @@ jobs:
 
       - name: Generate build.ninja
         env:
-          ALPINE_BRANCH: v3.22
+          ALPINE_BRANCH: edge
           MELANGE: cgr.dev/chainguard/melange@sha256:73afb5727d6ebf94adf5269133008239b2f40f68fa5cae24222989bd4e76837d  # 0.31.4
           APKO: cgr.dev/chainguard/apko@sha256:b940eb2485993ddd319bbb19875991847eca8e66f1a87063a1f1003a70c1f06f  # 0.30.13
         run: |
