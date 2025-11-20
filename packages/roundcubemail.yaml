@@ -1,0 +1,63 @@
+package:
+  name: roundcubemail
+  version: 1.6.11
+  epoch: 0
+  description: The Roundcube Webmail suite
+  copyright:
+    - license: GPL-3.0-or-later
+  dependencies:
+    runtime:
+      - php84
+      - php84-cgi
+      - php84-ctype
+      - php84-curl
+      - php84-dom
+      - php84-exif
+      - php84-fileinfo
+      - php84-gd
+      - php84-iconv
+      - php84-intl
+      - php84-ldap
+      - php84-mbstring
+      - php84-openssl
+      - php84-pdo_mysql
+      - php84-pdo_pgsql
+      - php84-pdo_sqlite
+      - php84-pecl-imagick
+      - php84-pecl-redis
+      - php84-session
+      - php84-xml
+      - php84-xmlwriter
+      - php84-zip
+
+environment:
+  contents:
+    packages:
+      - busybox
+
+pipeline:
+  - uses: fetch
+    with:
+      uri: https://github.com/roundcube/roundcubemail/releases/download/${{package.version}}/roundcubemail-${{package.version}}-complete.tar.gz
+      expected-sha256: a230e432065555bfa27bea3fcf4ac672f2359ef28ad84f5945ea3ccf702e7466
+      delete: true
+    working-directory: ${{targets.contextdir}}/usr/share/webapps/roundcubemail
+
+  - uses: patch
+    with:
+      patches: ${{package.srcdir}}/defaults.inc.php.patch
+    working-directory: ${{targets.contextdir}}/usr/share/webapps/roundcubemail
+
+  - runs: ln -s styles.min.css styles.css
+    working-directory: ${{targets.contextdir}}/usr/share/webapps/roundcubemail/skins/elastic/styles
+
+  - runs: |
+      install -Dm644 php.ini ${{targets.contextdir}}/etc/php84/conf.d/99_roundcubemail.ini
+      install -Dm644 lighttpd.conf ${{targets.contextdir}}/usr/share/webapps/roundcubemail/lighttpd.conf
+
+update:
+  enabled: false
+  github:
+    identifier: roundcube/roundcubemail
+    tag-filter: v1.6.
+    strip-prefix: v

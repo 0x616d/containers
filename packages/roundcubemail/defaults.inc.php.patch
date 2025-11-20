@@ -1,0 +1,34 @@
+--- a/config/defaults.inc.php
++++ b/config/defaults.inc.php
+@@ -33,7 +33,7 @@
+ //       for Mysql: key, cipher, cert, capath, ca, verify_server_cert,
+ //       for Postgres: application_name, sslmode, sslcert, sslkey, sslrootcert, sslcrl, sslcompression, service.
+ //       e.g. 'mysql://roundcube:@localhost/roundcubemail?verify_server_cert=false'
+-$config['db_dsnw'] = 'mysql://roundcube:@localhost/roundcubemail';
++$config['db_dsnw'] = 'sqlite:////var/lib/roundcubemail/roundcube.db?mode=0600';
+ 
+ // Database DSN for read-only operations (if empty write database will be used)
+ // useful for database replication
+@@ -72,7 +72,7 @@
+ // ----------------------------------
+ 
+ // log driver:  'syslog', 'stdout' or 'file'.
+-$config['log_driver'] = 'file';
++$config['log_driver'] = 'stdout';
+ 
+ // date format for log entries
+ // (read https://php.net/manual/en/function.date.php for all format characters)
+@@ -542,11 +542,11 @@
+ // use this folder to store log files
+ // must be writeable for the user who runs PHP process (Apache user if mod_php is being used)
+ // This is used by the 'file' log driver.
+-$config['log_dir'] = RCUBE_INSTALL_PATH . 'logs/';
++$config['log_dir'] = '/var/log/roundcubemail/';
+ 
+ // Location of temporary saved files such as attachments and cache files
+ // must be writeable for the user who runs PHP process (Apache user if mod_php is being used)
+-$config['temp_dir'] = RCUBE_INSTALL_PATH . 'temp/';
++$config['temp_dir'] = '/var/tmp/roundcubemail/';
+ 
+ // expire files in temp_dir after 48 hours
+ // possible units: s, m, h, d, w
