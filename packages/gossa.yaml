@@ -1,0 +1,34 @@
+package:
+  name: gossa
+  version: 1.1.2
+  epoch: 0
+  description: A fast and simple multimedia fileserver
+  copyright:
+    - license: MIT
+
+pipeline:
+  - uses: fetch
+    with:
+      uri: https://github.com/pldubouilh/gossa/archive/refs/tags/v${{package.version}}.tar.gz
+      expected-sha256: da7f0115eb40e99fe41675fd0007f94b34779e4dc47efdf1836548e1d2bbb3ea
+
+  - uses: go/build
+    environment:
+      CGO_ENABLED: 0
+    with:
+      packages: .
+      output: gossa
+      strip: -s -w -buildid=
+
+update:
+  enabled: false
+  github:
+    identifier: pldubouilh/gossa
+    tag-filter: v
+    strip-prefix: v
+
+test:
+  pipeline:
+    - runs: |
+        set -o pipefail
+        gossa | grep usage
