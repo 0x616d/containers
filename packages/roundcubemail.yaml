@@ -54,6 +54,7 @@ pipeline:
 
   - runs: |
       install -Dm644 php.ini ${{targets.contextdir}}/etc/php84/conf.d/99_roundcubemail.ini
+      install -Dm644 php_uploads.ini ${{targets.contextdir}}/etc/php84/conf.d/99_uploads.ini
       install -Dm644 lighttpd.conf ${{targets.contextdir}}/usr/share/webapps/roundcubemail/lighttpd.conf
 
 update:
