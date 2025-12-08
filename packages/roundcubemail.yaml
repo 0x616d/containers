@@ -19,6 +19,7 @@ package:
       - php84-intl
       - php84-ldap
       - php84-mbstring
+      - php84-opcache
       - php84-openssl
       - php84-pdo_mysql
       - php84-pdo_pgsql
