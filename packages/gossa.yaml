@@ -1,6 +1,6 @@
 package:
   name: gossa
-  version: 1.1.2
+  version: "1.1.2"
   epoch: 0
   description: A fast and simple multimedia fileserver
   copyright:
@@ -21,7 +21,7 @@ pipeline:
       strip: -s -w -buildid=
 
 update:
-  enabled: false
+  enabled: true
   github:
     identifier: pldubouilh/gossa
     tag-filter: v

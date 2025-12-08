@@ -1,6 +1,6 @@
 package:
   name: traefik
-  version: 3.6.2
+  version: "3.6.2"
   epoch: 0
   description: The Cloud Native Application Proxy
   copyright:
@@ -9,8 +9,8 @@ package:
 pipeline:
   - uses: fetch
     with:
-      expected-sha256: 136408aa009b378bf8d6aeadcdd9a78c7428f4e9d3b9de61b2f149e640d058c5
       uri: https://github.com/traefik/traefik/releases/download/v${{package.version}}/traefik-v${{package.version}}.src.tar.gz
+      expected-sha256: 136408aa009b378bf8d6aeadcdd9a78c7428f4e9d3b9de61b2f149e640d058c5
 
   - uses: go/build
     environment:
@@ -19,12 +19,12 @@ pipeline:
       packages: ./cmd/traefik
       output: traefik
       strip: -s -w -buildid=
-      ldflags: >
+      ldflags: >-
         -X github.com/traefik/traefik/v3/pkg/version.Version=${{package.version}}
         -X github.com/traefik/traefik/v3/pkg/version.BuildDate=$(date -d @"${SOURCE_DATE_EPOCH:-0}" -u '+%Y-%m-%dT%TZ')
 
 update:
-  enabled: false
+  enabled: true
   github:
     identifier: traefik/traefik
     tag-filter: v3.6.

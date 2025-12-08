@@ -1,6 +1,6 @@
 package:
   name: alps
-  version: 0_git20250811
+  version: "0_git20250811"
   epoch: 0
   description: A simple and extensible webmail
   copyright:
@@ -9,9 +9,9 @@ package:
 pipeline:
   - uses: git-checkout
     with:
-      expected-commit: 2494da2bd98802a1e71dfe1712e59c577ef07d1f
       repository: https://git.sr.ht/~migadu/alps
       branch: master
+      expected-commit: 2494da2bd98802a1e71dfe1712e59c577ef07d1f
 
   - uses: patch
     with:
@@ -33,8 +33,5 @@ pipeline:
       cp -a themes ${{targets.contextdir}}/usr/share/alps
 
 update:
-  enabled: false
+  enabled: true
   git: {}
-  schedule:
-    period: daily
-    reason: upstream project does not support tags or releases

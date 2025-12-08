@@ -1,6 +1,6 @@
 package:
   name: ofelia
-  version: 0.3.19
+  version: "0.3.19"
   epoch: 0
   description: A docker job scheduler (aka. crontab for docker)
   copyright:
@@ -19,12 +19,12 @@ pipeline:
       packages: .
       output: ofelia
       strip: -s -w -buildid=
-      ldflags: >
+      ldflags: >-
         -X main.version=v${{package.version}}
         -X main.build=$(date -d @"${SOURCE_DATE_EPOCH:-0}" -u '+%Y-%m-%dT%TZ')
 
 update:
-  enabled: false
+  enabled: true
   github:
     identifier: mcuadros/ofelia
     tag-filter: v

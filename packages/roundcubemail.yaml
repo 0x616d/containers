@@ -1,6 +1,6 @@
 package:
   name: roundcubemail
-  version: 1.6.11
+  version: "1.6.11"
   epoch: 2
   description: The Roundcube Webmail suite
   copyright:
@@ -58,7 +58,7 @@ pipeline:
       install -Dm644 lighttpd.conf ${{targets.contextdir}}/usr/share/webapps/roundcubemail/lighttpd.conf
 
 update:
-  enabled: false
+  enabled: true
   github:
     identifier: roundcube/roundcubemail
     tag-filter: v1.6.
