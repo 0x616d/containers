@@ -78,10 +78,6 @@ jobs:
           ${{ github.token }}
           EOF
 
-      - name: Install ninja
-        run: |
-          pip install ninja
-
       - name: Generate build.ninja
         env:
           ALPINE_BRANCH: edge

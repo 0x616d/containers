@@ -7,29 +7,28 @@ import sys
 import platform
 
 import yaml
-import ninja
 
 
 def get_arch(x: str) -> dict | None:
     match x:
         case "x86_64" | "amd64":
-            return {"name": "x86_64", "displayname": "amd64"}
+            return {"n": "x86_64", "dn": "amd64"}
         case "x86" | "386" | "i386":
-            return {"name": "x86", "displayname": "i386"}
+            return {"n": "x86", "dn": "i386"}
         case "aarch64" | "arm64" | "armv8":
-            return {"name": "aarch64", "displayname": "arm64"}
+            return {"n": "aarch64", "dn": "arm64"}
         case "armv7" | "arm/v7":
-            return {"name": "armv7", "displayname": "armv7"}
+            return {"n": "armv7", "dn": "armv7"}
         case "armhf" | "arm/v6" | "armv6":
-            return {"name": "armhf", "displayname": "armv6"}
+            return {"n": "armhf", "dn": "armv6"}
         case "loongarch64" | "loong64":
-            return {"name": "loongarch64", "displayname": "loong64"}
+            return {"n": "loongarch64", "dn": "loong64"}
         case "ppc64le":
-            return {"name": "ppc64le", "displayname": "ppc64le"}
+            return {"n": "ppc64le", "dn": "ppc64le"}
         case "riscv64":
-            return {"name": "riscv64", "displayname": "riscv64"}
+            return {"n": "riscv64", "dn": "riscv64"}
         case "s390x":
-            return {"name": "s390x", "displayname": "s390x"}
+            return {"n": "s390x", "dn": "s390x"}
         case _:
             return None
 
@@ -53,21 +52,18 @@ def get_packages() -> dict:
             for d in data["environment"]["contents"]["packages"]:
                 if d.endswith("@local"):
                     dependencies.append(d.removesuffix("@local"))
-
-        runtime_dependencies = []
         if (
             "dependencies" in data["package"]
             and "runtime" in data["package"]["dependencies"]
         ):
             for d in data["package"]["dependencies"]["runtime"]:
                 if d.endswith("@local"):
-                    runtime_dependencies.append(d.removesuffix("@local"))
+                    dependencies.append(d.removesuffix("@local"))
 
         packages[name] = {
-            "version": version,
-            "release": release,
-            "dependencies": dependencies,
-            "runtime-dependencies": runtime_dependencies,
+            "d": dependencies,
+            "r": release,
+            "v": version,
         }
     return packages
 
@@ -78,26 +74,23 @@ def get_images(packages: dict) -> dict:
         with open(image.absolute(), "r") as f:
             data = yaml.safe_load(f)
 
-        displayname = data["annotations"]["org.opencontainers.image.title"]
+        name = data["annotations"]["org.opencontainers.image.title"]
+        tag = packages[data["annotations"]["dev.chainguard.package.main"]]["v"]
 
-        tag = packages[data["annotations"]["dev.chainguard.package.main"]]["version"]
-        pkgs = packages[data["annotations"]["dev.chainguard.package.main"]]["runtime-dependencies"]
-
+        dependencies = []
         for d in data["contents"]["packages"]:
             if d.endswith("@local"):
-                pkgs.append(d.removesuffix("@local"))
+                dependencies.append(d.removesuffix("@local"))
 
         images[image.stem] = {
-            "dependencies": pkgs,
-            "displayname": displayname,
-            "tag": tag,
+            "d": dependencies,
+            "n": name,
+            "t": tag,
         }
     return images
 
 
 def main():
-    nw = ninja.Writer(sys.stdout, 158)
-
     packages = get_packages()
     images = get_images(packages)
 
@@ -111,7 +104,7 @@ def main():
 
     defaults = {
         "alpine_branch": "edge",
-        "ocirepo": "ghcr.io/0x616d/containers",
+        "ocirepo": "apko.local",
         "melange": "cgr.dev/chainguard/melange",
         "apko": "cgr.dev/chainguard/apko",
         "melange_flags": "",
@@ -122,14 +115,14 @@ def main():
         "workdir": os.getcwd(),
     }
 
-    for key, val in defaults.items():
-        nw.variable(key, os.environ.get(key.upper(), val))
+    for k, v in defaults.items():
+        sys.stdout.write(f"{k} = {os.environ.get(k.upper(), v)}\n")
 
-    nw.newline()
+    sys.stdout.write("\n")
 
-    nw.rule(
-        "melange-build",
-        "docker run --name melange --hostname melange --network host --privileged --rm -i"
+    sys.stdout.write(
+        "rule melange-build\n"
+        + "  command = docker run --rm --privileged --name melange --hostname melange --network host"
         + " -v '${melange_cachedir}':/cache/melange"
         + " -v '${apk_cachedir}':/cache/apk"
         + " -v '${packages_outdir}':/packages"
@@ -144,88 +137,85 @@ def main():
         + " --signing-key /work/local.rsa"
         + " --repository-append 'https://dl-cdn.alpinelinux.org/alpine/${alpine_branch}/main'"
         + " --repository-append 'https://dl-cdn.alpinelinux.org/alpine/${alpine_branch}/community'"
-        + " --package-append alpine-release ${melange_flags}",
+        + " --package-append alpine-release ${melange_flags}"
+        + "\n"
     )
 
-    nw.newline()
+    sys.stdout.write("\n")
 
-    nw.rule(
-        "apko-publish",
-        "docker run --name apko --hostname apko --network host --privileged --rm -i"
+    sys.stdout.write(
+        "rule apko-publish\n"
+        + "  command = docker run --rm --name apko --hostname apko --network host"
         + " -v /var/run/docker.sock:/var/run/docker.sock"
         + " -v ~/.docker:/root/.docker"
         + " -v '${melange_cachedir}':/cache/melange"
         + " -v '${apk_cachedir}':/cache/apk"
         + " -v '${packages_outdir}':/packages"
         + " -v '${workdir}':/work"
-        + " $apko publish /work/'${in}' '${ocirepo}/${displayname}:${tag}-${displayarch}'"
+        + " $apko publish /work/'${in}' '${ocirepo}/${name}:${tag}-${archdn}'"
         + " --arch '${arch}'"
         + " --cache-dir /cache/apk"
         + " --keyring-append /work/local.rsa.pub"
         + " --repository-append '@local /packages'"
         + " --repository-append 'https://dl-cdn.alpinelinux.org/alpine/${alpine_branch}/main'"
         + " --repository-append 'https://dl-cdn.alpinelinux.org/alpine/${alpine_branch}/community'"
-        + " --package-append alpine-release ${apko_flags} | tee 'digest+${displayname}+${tag}+${displayarch}'",
+        + " --package-append alpine-release ${apko_flags} | tee 'digest+${name}+${tag}+${archdn}'"
+        + "\n"
     )
 
-    nw.newline()
+    sys.stdout.write("\n")
 
-    for xarch in arches:
-        arch = xarch["name"]
-        displayarch = xarch["displayname"]
+    for arch in arches:
+        archn = arch["n"]
+        archdn = arch["dn"]
 
         for package in packages:
-            version = packages[package]["version"]
-            release = packages[package]["release"]
+            version = packages[package]["v"]
+            release = packages[package]["r"]
 
-            dependencies = []
-            for d in packages[package]["dependencies"]:
-                dependencies.append(f"pkg-{d}-{showarch}")
-
-            nw.build(
-                rule="melange-build",
-                outputs=f"$packages_outdir/{arch}/{package}-{version}-r{release}.apk",
-                inputs=f"packages/{package}.yaml",
-                order_only=dependencies,
-                variables={"arch": arch, "package": package},
+            sys.stdout.write(
+                f"build $packages_outdir/{archn}/{package}-{version}-r{release}.apk: melange-build packages/{package}.yaml"
             )
 
-            nw.build(
-                rule="phony",
-                outputs=f"pkg-{package}-{displayarch}",
-                inputs=f"$packages_outdir/{arch}/{package}-{version}-r{release}.apk",
+            if len(packages[package]["d"]) > 0:
+                sys.stdout.write(" ||")
+                for d in packages[package]["d"]:
+                    sys.stdout.write(f" pkg-{d}-{archdn}")
+
+            sys.stdout.write("\n" + f"  arch = {archn}\n" + f"  package = {package}\n")
+
+            sys.stdout.write(
+                f"build pkg-{package}-{archdn}: phony $packages_outdir/{archn}/{package}-{version}-r{release}.apk\n"
             )
 
-            nw.newline()
+            sys.stdout.write("\n")
 
         for image in images:
-            displayname = images[image]["displayname"]
-            tag = images[image]["tag"]
+            name = images[image]["n"]
+            tag = images[image]["t"]
 
-            dependencies = []
-            for d in images[image]["dependencies"]:
-                dependencies.append(f"pkg-{d}-{displayarch}")
-
-            nw.build(
-                rule="apko-publish",
-                outputs=f"digest+{displayname}+{tag}+{displayarch}",
-                inputs=f"images/{image}.yaml",
-                order_only=dependencies,
-                variables={
-                    "arch": arch,
-                    "displayarch": displayarch,
-                    "displayname": displayname,
-                    "tag": tag,
-                },
+            sys.stdout.write(
+                f"build digest+{name}+{tag}+{archdn}: apko-publish images/{image}.yaml"
             )
 
-            nw.build(
-                rule="phony",
-                outputs=f"publish-{image}-{displayarch}",
-                inputs=f"digest+{displayname}+{tag}+{displayarch}",
+            if len(images[image]["d"]) > 0:
+                sys.stdout.write(" ||")
+                for d in images[image]["d"]:
+                    sys.stdout.write(f" pkg-{d}-{archdn}")
+
+            sys.stdout.write(
+                "\n"
+                + f"  arch = {archn}\n"
+                + f"  archdn = {archdn}\n"
+                + f"  name = {name}\n"
+                + f"  tag = {tag}\n"
             )
 
-            nw.newline()
+            sys.stdout.write(
+                f"build publish-{image}-{archdn}: phony digest+{name}+{tag}+{archdn}\n"
+            )
+
+            sys.stdout.write("\n")
 
 
 if __name__ == "__main__":
