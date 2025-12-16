@@ -1,7 +1,7 @@
 package:
   name: roundcubemail
-  version: "1.6.11"
-  epoch: 2
+  version: "1.6.12"
+  epoch: 0
   description: The Roundcube Webmail suite
   copyright:
     - license: GPL-3.0-or-later
@@ -41,7 +41,7 @@ pipeline:
   - uses: fetch
     with:
       uri: https://github.com/roundcube/roundcubemail/releases/download/${{package.version}}/roundcubemail-${{package.version}}-complete.tar.gz
-      expected-sha256: a230e432065555bfa27bea3fcf4ac672f2359ef28ad84f5945ea3ccf702e7466
+      expected-sha256: 180b485dfde1898b2f1ac8046b34063898d263d7605fc64c41e230e3418f2a30
       delete: true
     working-directory: ${{targets.contextdir}}/usr/share/webapps/roundcubemail
 
