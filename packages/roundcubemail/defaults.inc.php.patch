@@ -32,3 +32,12 @@
  
  // expire files in temp_dir after 48 hours
  // possible units: s, m, h, d, w
+@@ -780,7 +780,7 @@
+ // This is used to derive mime-types from the filename extension or vice versa.
+ // Such a file is usually part of the apache webserver. If you don't find a file named mime.types on your system,
+ // download it from https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
+-$config['mime_types'] = null;
++$config['mime_types'] = '/etc/mime.types';
+ 
+ // path to imagemagick identify binary (if not set we'll use Imagick or GD extensions)
+ $config['im_identify_path'] = null;
