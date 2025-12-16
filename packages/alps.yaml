@@ -1,6 +1,6 @@
 package:
   name: alps
-  version: "0_git20250811"
+  version: "0_git20251126"
   epoch: 0
   description: A simple and extensible webmail
   copyright:
@@ -11,7 +11,7 @@ pipeline:
     with:
       repository: https://git.sr.ht/~migadu/alps
       branch: master
-      expected-commit: 2494da2bd98802a1e71dfe1712e59c577ef07d1f
+      expected-commit: bd6a860d88e9ee02fc051f8596b042e7381b38fa
 
   - uses: patch
     with:
