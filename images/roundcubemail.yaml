@@ -5,6 +5,7 @@ contents:
     - ca-certificates-bundle
     - lighttpd
     - roundcubemail@local
+    - roundcubemail-plugin-carddav@local
 
 entrypoint:
   command: /usr/sbin/lighttpd -f lighttpd.conf -D
