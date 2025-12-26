@@ -1,0 +1,27 @@
+package:
+  name: roundcubemail-plugin-carddav
+  version: "5.1.2"
+  epoch: 0
+  description: CardDAV plugin for Roundcube Webmail
+  copyright:
+    - license: GPL-2.0-only
+
+environment:
+  contents:
+    packages:
+      - busybox
+      - ca-certificates-bundle
+
+pipeline:
+  - uses: fetch
+    with:
+      uri: https://github.com/mstilkerich/rcmcarddav/releases/download/v${{package.version}}/carddav-v${{package.version}}.tar.gz
+      expected-sha256: 349d138dbed067c695ee9aba6f69e74131823b1e080b3b69aa424d13304bfef4
+      delete: true
+    working-directory: ${{targets.contextdir}}/usr/share/webapps/roundcubemail/plugins/carddav
+
+update:
+  enabled: true
+  github:
+    identifier: mstilkerich/rcmcarddav
+    strip-prefix: v
