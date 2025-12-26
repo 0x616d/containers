@@ -27,7 +27,6 @@ update:
   enabled: true
   github:
     identifier: traefik/traefik
-    tag-filter: v3.6.
     strip-prefix: v
 
 test:

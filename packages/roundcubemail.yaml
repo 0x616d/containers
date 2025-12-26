@@ -67,5 +67,4 @@ update:
   enabled: true
   github:
     identifier: roundcube/roundcubemail
-    tag-filter: v1.6.
     strip-prefix: v
