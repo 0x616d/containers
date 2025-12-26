@@ -48,7 +48,12 @@ pipeline:
 
   - uses: patch
     with:
-      patches: ${{package.srcdir}}/defaults.inc.php.patch
+      patches: ${{package.srcdir}}/confpath.patch
+    working-directory: ${{targets.contextdir}}/usr/share/webapps/roundcubemail
+
+  - runs: |
+      mkdir ${{targets.contextdir}}/etc
+      mv config ${{targets.contextdir}}/etc/roundcubemail
     working-directory: ${{targets.contextdir}}/usr/share/webapps/roundcubemail
 
   - runs: ln -s styles.min.css styles.css

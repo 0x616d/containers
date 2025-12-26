@@ -28,7 +28,7 @@
  // Location of temporary saved files such as attachments and cache files
  // must be writeable for the user who runs PHP process (Apache user if mod_php is being used)
 -$config['temp_dir'] = RCUBE_INSTALL_PATH . 'temp/';
-+$config['temp_dir'] = '/var/tmp/roundcubemail/';
++$config['temp_dir'] = '/var/lib/roundcubemail/temp/';
  
  // expire files in temp_dir after 48 hours
  // possible units: s, m, h, d, w
@@ -41,3 +41,25 @@
  
  // path to imagemagick identify binary (if not set we'll use Imagick or GD extensions)
  $config['im_identify_path'] = null;
+--- a/program/include/iniset.php
++++ b/program/include/iniset.php
+@@ -40,7 +40,7 @@
+ }
+ 
+ define('RCUBE_INSTALL_PATH', INSTALL_PATH);
+-define('RCUBE_CONFIG_DIR',  RCMAIL_CONFIG_DIR.'/');
++define('RCUBE_CONFIG_DIR',  '/etc/roundcubemail/');
+ 
+ // Show basic error message on fatal PHP error
+ register_shutdown_function('rcmail_error_handler');
+--- a/program/lib/Roundcube/bootstrap.php
++++ b/program/lib/Roundcube/bootstrap.php
+@@ -70,7 +70,7 @@
+ }
+ 
+ if (!defined('RCUBE_CONFIG_DIR')) {
+-    define('RCUBE_CONFIG_DIR', RCUBE_INSTALL_PATH . 'config/');
++    define('RCUBE_CONFIG_DIR', '/etc/roundcubemail/');
+ }
+ 
+ if (!defined('RCUBE_PLUGINS_DIR')) {
