@@ -1,0 +1,73 @@
+package:
+  name: snappymail
+  version: "2.38.2"
+  epoch: 0
+  description: Simple, modern & fast web-based email client
+  copyright:
+    - license: AGPL-3.0-or-later
+  dependencies:
+    runtime:
+      - php84
+      - php84-apcu
+      - php84-cgi
+      - php84-ctype
+      - php84-curl
+      - php84-dom
+      - php84-fileinfo
+      - php84-gd
+      - php84-iconv
+      - php84-intl
+      - php84-ldap
+      - php84-mbstring
+      - php84-opcache
+      - php84-openssl
+      - php84-pdo_mysql
+      - php84-pdo_pgsql
+      - php84-pdo_sqlite
+      - php84-pecl-imagick
+      - php84-pecl-redis
+      - php84-pecl-uuid
+      - php84-phar
+      - php84-simplexml
+      - php84-sodium
+      - php84-tidy
+      - php84-zip
+
+environment:
+  contents:
+    packages:
+      - busybox
+      - ca-certificates-bundle
+
+pipeline:
+  - uses: fetch
+    with:
+      uri: https://github.com/the-djmaze/snappymail/releases/download/v${{package.version}}/snappymail-${{package.version}}.tar.gz
+      expected-sha256: 71f1d8a9065cc9cf7ddd064f5c47cc7b255cb70e6a56713647fc73d4b79e33ec
+      strip-components: 0
+      delete: true
+    working-directory: ${{targets.contextdir}}/usr/share/webapps/snappymail
+
+  - name: remove unneeded files
+    runs: |
+      rm -rf data/ _include.php README.md
+      rm -rf snappymail/v/${{package.version}}/app/domains/*
+      rm -rf snappymail/v/${{package.version}}/themes/*
+      find . -name '*.br' -delete
+      find . -name '*.gz' -delete
+    working-directory: ${{targets.contextdir}}/usr/share/webapps/snappymail
+
+  - name: copy default theme
+    runs: |
+      cp -a theme  ${{targets.contextdir}}/usr/share/webapps/snappymail/snappymail/v/${{package.version}}/themes/Default
+
+  - runs: |
+      install -Dm644 php.ini ${{targets.contextdir}}/etc/php84/conf.d/90_snappymail.ini
+      install -Dm644 lighttpd.conf ${{targets.contextdir}}/usr/share/webapps/snappymail/lighttpd.conf
+      install -Dm644 include.php ${{targets.contextdir}}/usr/share/webapps/snappymail/include.php
+
+update:
+  enabled: true
+  github:
+    identifier: the-djmaze/snappymail
+    strip-prefix: v

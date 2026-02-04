@@ -1,0 +1,91 @@
+:root {
+	--main-bg-color: #fafafa;
+
+	--folders-color: #333;
+	--folders-disabled-color: #cdcdcd;
+	--folders-selected-color: #007DCC;
+	--folders-selected-bg-color: #f8f9ff;
+	--folders-focused-color: #f8f9ff;
+	--folders-focused-bg-color: #333;
+	--folders-hover-color: var(--folders-color);
+	--folders-hover-bg-color: var(--folders-selected-bg-color);
+	--folders-drop-color: #333;
+	--folders-drop-bg-color: #c8d7e5;
+
+	--settings-menu-color: #333;
+	--settings-menu-selected-color: #007DCC;
+	--settings-menu-selected-bg-color: #DFEFFF;
+	--settings-menu-hover-color: #444;
+	--settings-menu-hover-bg-color: #eff7ff;
+}
+
+.b-folders .b-folders-system li a[data-unread]::after {
+	background-color: inherit;
+	color: inherit;
+}
+
+.messageItemHeader, .bodySubHeader,
+.thm-message-list-top-toolbar, .thm-message-list-bottom-toolbar {
+	background: linear-gradient(to top, #f8f8f8, #FFF) !important;
+}
+
+.messageView { border-radius: 0; }
+
+.btn {
+	text-shadow: none !important;
+}
+
+.btn.btn-danger,
+.btn.btn-info,
+.btn.btn-inverse,
+.btn.btn-primary,
+.btn.btn-success,
+.btn.btn-warning,
+.btn [class*=" icon-"],
+.btn [class^=icon-] { color: #333; !important; }
+
+.btn.btn-success { text-shadow: none; background-color: #f4f9f4; border-color: #cce5cc; }
+.btn.btn-success:hover,
+.btn.btn-success:active { background-color: #e5f2e5; }
+.btn.btn-success,
+.btn.btn-success [class*=" icon-"],
+.btn.btn-success [class^=icon-] { color: #008000; }
+
+.btn.btn-warning { background-color: #fff6e5; border-color: #ffc04c; color: #FFA500; }
+.btn.btn-warning:hover,
+.btn.btn-warning:active { background-color: #ffedcc; }
+
+.btn,
+.btn.disabled, .btn[disabled],
+.btn.disabled:hover, .btn[disabled]:hover { background-color: #fff; }
+
+.btn.disabled.fontastic, .btn.disabled .fontastic { color: #cdcdcd; }
+
+.btn:hover { color: #333; background-color: #f8f9ff; }
+
+#V-AdminPane > .b-toolbar {
+	color: #333;
+	text-shadow: none;
+}
+
+#V-PopupsCompose header {
+	background: linear-gradient(to top, #f8f8f8, #FFF) !important;
+}
+
+#V-PopupsCompose .close {
+	color: #aaa;
+}
+
+#V-PopupsCompose header div.pull-right a.minimize-custom {
+	border-color: #aaa;
+}
+
+.LoginView input::-webkit-input-placeholder { color: #fff; }
+.LoginView input::-moz-placeholder { color: #fff; }
+.LoginView input:-ms-input-placeholder { color: #fff; }
+.LoginView input:-moz-placeholder  { color: #fff; }
+
+/*
+missing icons:
+: ⓘ
+*/

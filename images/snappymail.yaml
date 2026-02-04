@@ -1,0 +1,39 @@
+---
+contents:
+  packages:
+    - tzdata
+    - ca-certificates-bundle
+    - lighttpd
+    - snappymail@local
+
+entrypoint:
+  command: /usr/sbin/lighttpd -f lighttpd.conf -D
+
+work-dir: /usr/share/webapps/snappymail
+
+accounts:
+  run-as: 65532
+  users:
+    - uid: 65532
+      username: snappymail
+  groups:
+    - gid: 65532
+      groupname: snappymail
+
+environment:
+  PHP_FCGI_CHILDREN: 4
+  PHP_FCGI_MAX_REQUESTS: 1000
+
+paths:
+  - path: /var/lib/snappymail
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o750
+
+volumes:
+  - /var/lib/snappymail
+
+annotations:
+  org.opencontainers.image.title: snappymail
+  dev.chainguard.package.main: snappymail
