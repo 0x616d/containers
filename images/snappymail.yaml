@@ -4,10 +4,35 @@ contents:
     - tzdata
     - ca-certificates-bundle
     - lighttpd
+    - php84
+    - php84-apcu
+    - php84-cgi
+    - php84-ctype
+    - php84-curl
+    - php84-dom
+    - php84-fileinfo
+    - php84-gd
+    - php84-iconv
+    - php84-intl
+    - php84-ldap
+    - php84-mbstring
+    - php84-opcache
+    - php84-openssl
+    - php84-pdo_mysql
+    - php84-pdo_pgsql
+    - php84-pdo_sqlite
+    - php84-pecl-imagick
+    - php84-pecl-redis
+    - php84-pecl-uuid
+    - php84-phar
+    - php84-simplexml
+    - php84-sodium
+    - php84-tidy
+    - php84-zip
     - snappymail@local
 
 entrypoint:
-  command: /usr/sbin/lighttpd -f lighttpd.conf -D
+  command: /usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf -D
 
 work-dir: /usr/share/webapps/snappymail
 
@@ -25,11 +50,32 @@ environment:
   PHP_FCGI_MAX_REQUESTS: 1000
 
 paths:
+  - path: /usr/share/webapps/snappymail/include.php
+    type: hardlink
+    source: /usr/share/doc/snappymail/include.php
+    uid: 0
+    gid: 0
+    permissions: 0o644
+
+  - path: /etc/lighttpd/lighttpd.conf
+    type: hardlink
+    source: /usr/share/doc/snappymail/lighttpd.conf
+    uid: 0
+    gid: 0
+    permissions: 0o644
+
+  - path: /etc/php84/conf.d/90_snappymail.ini
+    type: hardlink
+    source: /usr/share/doc/snappymail/php.ini
+    uid: 0
+    gid: 0
+    permissions: 0o644
+
   - path: /var/lib/snappymail
     type: directory
     uid: 65532
     gid: 65532
-    permissions: 0o750
+    permissions: 0o700
 
 volumes:
   - /var/lib/snappymail
