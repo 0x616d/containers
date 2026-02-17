@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+
+import argparse
+import sys
+import os
+import json
+import yaml
+
+from pathlib import Path
+
+
+platforms = [
+    {"arch": "amd64", "runner": "ubuntu-24.04"},
+    {"arch": "arm64", "runner": "ubuntu-24.04-arm"},
+]
+
+
+def has_dep(image: Path, deps: dict) -> bool:
+    if not image.is_file():
+        return False
+
+    with open(image.absolute(), "r") as f:
+        data = yaml.safe_load(f)
+
+    pkgs = data["contents"]["packages"]
+
+    for dep in deps:
+        dep = dep + "@local"
+
+        if dep in pkgs:
+            return True
+
+    return False
+
+
+def main():
+    args_parser = argparse.ArgumentParser()
+    args_parser.add_argument("--deps")
+    args_parser.add_argument("images")
+
+    args = args_parser.parse_args()
+
+    matrix = []
+
+    deps = set()
+    images = set()
+
+    no_deps = args.deps is None or args.deps in "*"
+    all_images = args.images in "*"
+
+    if not no_deps:
+        deps.update(args.deps.split(","))
+
+    if no_deps and all_images:
+        for image in Path("images").glob("*.yaml"):
+            images.add(image.stem)
+    elif no_deps:
+        for image in args.images.split(","):
+            if Path(f"images/{image}.yaml").is_file():
+                images.add(image)
+    elif all_images:
+        for image in Path("images").glob("*.yaml"):
+            if has_dep(image, deps):
+                images.add(image.stem)
+    else:
+        for image in args.images.split(","):
+            if has_dep(Path(f"images/{image}.yaml"), deps):
+                images.add(image)
+
+    if len(images) < 1:
+        print("No images found.", file=sys.stderr)
+        sys.exit(1)
+
+    for platform in platforms:
+        for image in images:
+            matrix.append({"I": image, "A": platform["arch"], "R": platform["runner"]})
+
+    if "GITHUB_OUTPUT" in os.environ:
+        with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+            print(f"matrix={json.dumps({'include': matrix})}", file=f)
+    else:
+        print(f"{json.dumps({'include': matrix})}", file=sys.stdout)
+
+
+if __name__ == "__main__":
+    main()
