@@ -37,4 +37,4 @@ jobs:
             -H 'Accept: application/vnd.github.v3+json' \
             -H 'Authorization: token ${{ github.token }}' \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/release.yaml/dispatches \
-            -d '{"ref":"main","inputs":{"packages":"${{ steps.melu.outputs.packages }}"}}'
+            -d '{"ref":"master","inputs":{"packages":"${{ steps.melu.outputs.packages }}"}}'
