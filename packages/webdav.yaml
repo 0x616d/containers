@@ -19,7 +19,7 @@ pipeline:
       packages: .
       output: webdav
       strip: -s -w -buildid=
-      ldflags: >-
+      ldflags: |
         -X github.com/hacdias/webdav/v5/cmd.version=${{package.version}}
 
 update:

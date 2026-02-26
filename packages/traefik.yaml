@@ -19,8 +19,9 @@ pipeline:
       packages: ./cmd/traefik
       output: traefik
       strip: -s -w -buildid=
-      ldflags: >-
-        -X github.com/traefik/traefik/v3/pkg/version.Version=${{package.version}} -X github.com/traefik/traefik/v3/pkg/version.BuildDate=$(date -d @"${SOURCE_DATE_EPOCH:-0}" -u '+%Y-%m-%dT%TZ')
+      ldflags: |
+        -X github.com/traefik/traefik/v3/pkg/version.Version=${{package.version}}
+        -X github.com/traefik/traefik/v3/pkg/version.BuildDate=$(date -d @"${SOURCE_DATE_EPOCH:-0}" -u '+%Y-%m-%dT%TZ')
 
 update:
   enabled: true

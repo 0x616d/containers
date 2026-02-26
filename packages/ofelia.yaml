@@ -19,7 +19,7 @@ pipeline:
       packages: .
       output: ofelia
       strip: -s -w -buildid=
-      ldflags: >-
+      ldflags: |
         -X main.version=v${{package.version}}
         -X main.build=$(date -d @"${SOURCE_DATE_EPOCH:-0}" -u '+%Y-%m-%dT%TZ')
 

@@ -24,7 +24,7 @@ pipeline:
       packages: ./cmd/alps
       output: alps
       strip: -s -w -buildid=
-      ldflags: >
+      ldflags: |
         -X main.themesPath=/usr/share/alps/themes
 
   - name: install themes
