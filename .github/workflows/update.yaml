@@ -12,6 +12,7 @@ jobs:
     name: update
     runs-on: ubuntu-24.04
     permissions:
+      actions: write
       contents: write
     steps:
       - name: melu
@@ -32,8 +33,10 @@ jobs:
         id: dispatch
         if: steps.melu.outputs.packages != ''
         run: |
-          curl -X POST \
-            -H 'Accept: application/vnd.github.v3+json' \
-            -H 'Authorization: token ${{ github.token }}' \
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/release.yaml/dispatches \
             -d '{"ref":"master","inputs":{"packages":"${{ steps.melu.outputs.packages }}"}}'
