@@ -23,7 +23,7 @@ jobs:
             -e GIT_AUTHOR_NAME='github-actions[bot]' \
             -e GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com' \
             -v "$GITHUB_OUTPUT":/output:rw \
-            -v "$TMPDIR":/tmp:rw \
+            -v /tmp:/tmp:rw \
             -u 0:0 \
             ghcr.io/0x616d/melu@sha256:daf40dbac5409c887ec0650b706c6db56965e0c4cdf82d3925d49ae958c484f7 \
             -query-github -push -path packages 'https://github.com/${{ github.repository }}'
