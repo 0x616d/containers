@@ -1,0 +1,79 @@
+package:
+  name: grist
+  version: "1.7.11"
+  epoch: 0
+  description: The evolution of spreadsheets
+  copyright:
+    - license: Apache-2.0
+  checks:
+    disabled:
+      - duplicate
+      - lddcheck
+      - nonlinux
+      - unsupportedarch
+  dependencies:
+    runtime:
+      - musl-utils
+      - bash
+      - nodejs
+      - python3
+
+environment:
+  contents:
+    packages:
+      - bash
+      - busybox
+      - ca-certificates-bundle
+      - make
+      - python3
+      - uv
+      - yarn
+  environment:
+    YARN_ENABLE_GLOBAL_CACHE: true
+    YARN_CACHE_FOLDER: /var/cache/melange/yarn
+
+pipeline:
+  - uses: fetch
+    with:
+      uri: https://github.com/gristlabs/grist-core/archive/refs/tags/v${{package.version}}.tar.gz
+      expected-sha256: d7a657fe78ea5ebbb4d8bfbda18470d52dcd2151f3369f34d795452d0f814768
+
+  - name: install build dependencies
+    runs: |
+      yarn install --frozen-lockfile
+
+  - name: build
+    runs: |
+      yarn run build:prod
+
+  - name: install production dependencies
+    runs: |
+      yarn install --production --ignore-scripts --prefer-offline --frozen-lockfile
+
+  - name: create sandbox venv
+    environment:
+     VIRTUAL_ENV: sandbox_venv3
+    runs: |
+      uv venv "$VIRTUAL_ENV"
+      uv pip install -r sandbox/requirements.txt --no-deps --compile-bytecode
+
+  - name: package
+    runs: >
+      tar c
+      -C '${{package.srcdir}}'
+      --exclude '.lock'
+      --exclude 'README'
+      --exclude '*napi.node'
+      --exclude '*.a'
+      --exclude '*.o'
+      --exclude '*.glibc.node'
+      --exclude '*.md'
+      _build bin bower_components node_modules plugins sandbox sandbox_venv3 static
+      |tar x
+    working-directory: ${{targets.contextdir}}/usr/share/grist
+
+update:
+  enabled: true
+  github:
+    identifier: gristlabs/grist-core
+    strip-prefix: v
