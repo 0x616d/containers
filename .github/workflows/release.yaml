@@ -25,7 +25,7 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Matrix
         id: matrix
@@ -43,7 +43,7 @@ jobs:
     runs-on: ${{ matrix.R }}
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Setup signing key
         run: |
@@ -60,17 +60,17 @@ jobs:
       - name: Generate build.ninja
         env:
           ALPINE_BRANCH: edge
-          MELANGE: cgr.dev/chainguard/melange@sha256:1e15d5efde5f877140e6346d4a5bdf238e54da5b2b6bfaa007881d4443ce0249  # 0.40.5
-          APKO: cgr.dev/chainguard/apko@sha256:37170faafe12af63e30104dbbba8a055e3c8ca9faba966b7bfc02c85c39ae06e  # 1.1.6
+          MELANGE: cgr.dev/chainguard/melange@sha256:07cdeb71fb031ce003ce5244028b6ecf9478d8dd3c81ce477a22c2ccfa9b2972  # 0.45.3
+          APKO: cgr.dev/chainguard/apko@sha256:1895a13359874db52e4bf77c0af61d32806e352d444db1f9bb3dd15d03d402ee  # 1.1.14
         run: |
-          bin/mkninja | tee build.ninja
+          bin/mkninja >build.ninja
 
       - name: Publish ${{ matrix.I }} for ${{ matrix.A }}
         run: |
           ninja -j 1 publish-${{ matrix.I }}-${{ matrix.A }}
 
       - name: Upload digest
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # 4.6.2
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
         with:
           name: digest-${{ matrix.I }}-${{ matrix.A }}
           path: digest*
@@ -86,7 +86,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Download digests
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # 5.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           pattern: |
             digest-*
