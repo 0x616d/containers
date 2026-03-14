@@ -1,0 +1,45 @@
+--- a/meshcentral.js
++++ b/meshcentral.js
+@@ -82,31 +82,17 @@
+     getCurrentVersion();
+ 
+     // Setup the default configuration and files paths
+-    if ((__dirname.endsWith('/node_modules/meshcentral')) || (__dirname.endsWith('\\node_modules\\meshcentral')) || (__dirname.endsWith('/node_modules/meshcentral/')) || (__dirname.endsWith('\\node_modules\\meshcentral\\'))) {
+-        obj.parentpath = obj.path.join(__dirname, '../..');
+-        obj.datapath = obj.path.join(__dirname, '../../meshcentral-data');
+-        obj.filespath = obj.path.join(__dirname, '../../meshcentral-files');
+-        obj.backuppath = obj.path.join(__dirname, '../../meshcentral-backups');
+-        obj.recordpath = obj.path.join(__dirname, '../../meshcentral-recordings');
+-        obj.webViewsPath = obj.path.join(__dirname, 'views');
+-        obj.webPublicPath = obj.path.join(__dirname, 'public');
+-        obj.webEmailsPath = obj.path.join(__dirname, 'emails');
+-        if (obj.fs.existsSync(obj.path.join(__dirname, '../../meshcentral-web/views'))) { obj.webViewsOverridePath = obj.path.join(__dirname, '../../meshcentral-web/views'); }
+-        if (obj.fs.existsSync(obj.path.join(__dirname, '../../meshcentral-web/public'))) { obj.webPublicOverridePath = obj.path.join(__dirname, '../../meshcentral-web/public'); }
+-        if (obj.fs.existsSync(obj.path.join(__dirname, '../../meshcentral-web/emails'))) { obj.webEmailsOverridePath = obj.path.join(__dirname, '../../meshcentral-web/emails'); }
+-    } else {
+-        obj.parentpath = __dirname;
+-        obj.datapath = obj.path.join(__dirname, '../meshcentral-data');
+-        obj.filespath = obj.path.join(__dirname, '../meshcentral-files');
+-        obj.backuppath = obj.path.join(__dirname, '../meshcentral-backups');
+-        obj.recordpath = obj.path.join(__dirname, '../meshcentral-recordings');
+-        obj.webViewsPath = obj.path.join(__dirname, 'views');
+-        obj.webPublicPath = obj.path.join(__dirname, 'public');
+-        obj.webEmailsPath = obj.path.join(__dirname, 'emails');
+-        if (obj.fs.existsSync(obj.path.join(__dirname, '../meshcentral-web/views'))) { obj.webViewsOverridePath = obj.path.join(__dirname, '../meshcentral-web/views'); }
+-        if (obj.fs.existsSync(obj.path.join(__dirname, '../meshcentral-web/public'))) { obj.webPublicOverridePath = obj.path.join(__dirname, '../meshcentral-web/public'); }
+-        if (obj.fs.existsSync(obj.path.join(__dirname, '../meshcentral-web/emails'))) { obj.webEmailsOverridePath = obj.path.join(__dirname, '../meshcentral-web/emails'); }
+-    }
++    obj.parentpath = '/var/lib/meshcentral';
++    obj.datapath = '/var/lib/meshcentral/data';
++    obj.filespath = '/var/lib/meshcentral/files';
++    obj.backuppath = '/var/lib/meshcentral/backups';
++    obj.recordpath = '/var/lib/meshcentral/recordings';
++    obj.webViewsPath = '/usr/share/meshcentral/views';
++    obj.webPublicPath = '/usr/share/meshcentral/public';
++    obj.webEmailsPath = '/usr/share/meshcentral/emails';
++    if (obj.fs.existsSync('/var/lib/meshcentral/web/views')) { obj.webViewsOverridePath = '/var/lib/meshcentral/web/views'; }
++    if (obj.fs.existsSync('/var/lib/meshcentral/web/public')) { obj.webPublicOverridePath = '/var/lib/meshcentral/web/public'; }
++    if (obj.fs.existsSync('/var/lib/meshcentral/web/emails')) { obj.webEmailsOverridePath = '/var/lib/meshcentral/web/emails'; }
+ 
+     // Clean up any temporary files
+     const removeTime = new Date(Date.now()).getTime() - (30 * 60 * 1000); // 30 minutes

@@ -1,0 +1,151 @@
+package:
+  name: meshcentral
+  version: "1.1.57"
+  epoch: 0
+  description: A full computer management web site
+  copyright:
+    - license: Apache-2.0
+  dependencies:
+    runtime:
+      - nodejs
+  options:
+    no-depends: true
+
+environment:
+  contents:
+    packages:
+      - ca-certificates-bundle
+      - busybox
+      - npm
+      - jq
+
+vars:
+  ldap: false
+  ssh: false
+  captcha: false
+  recording: true
+  multiplexor: true
+  letsencrypt: false
+  mqtt: false
+  mysql: false
+  mongodb: false
+  postgres: true
+  mariadb: true
+  acebase: false
+  sqlite3: false
+  vault: false
+  proxy: true
+  smtp: true
+  crowdsec: false
+  prometheus: true
+  encryption: false
+  googledrive: false
+  webdav: false
+  s3: false
+  wildleek: false
+  yubikey: false
+  twilio: false
+  plivo: false
+  telnyx: false
+  telegram: false
+  discord: false
+  xmpp: false
+  pushover: false
+  zulip: false
+  webpush: false
+  firebase: false
+  syslog: false
+
+pipeline:
+  - uses: fetch
+    with:
+      uri: https://github.com/Ylianst/MeshCentral/archive/refs/tags/${{package.version}}.tar.gz
+      expected-sha256: d3386c80031f51b265424aae743361650ab02ee3e15613c8d1484d74770b3825
+
+  - name: generate dependencies
+    runs: |
+      grep -oE "modules.push\('[@\/a-zA-Z0-9.-]+@[0-9.]+'\)" meshcentral.js |
+        grep -o "'.*'" |
+        tr -d "'" |
+        sort -u |
+        tee dependencies
+
+  - name: include extra dependencies
+    runs: |
+      add_dep() {
+        _d=$(grep $1 dependencies); _t=$(mktemp -q); _n=${_d%@*}; _v=${_d##*@};
+        jq ".dependencies+={\"$_n\": \"$_v\"}" package.json >"$_t" && mv "$_t" package.json
+      }
+
+      ${{vars.ldap}} && add_dep ldapauth-fork
+      ${{vars.ssh}} && add_dep ssh2
+      ${{vars.captcha}} && add_dep svg-captcha
+      ${{vars.recording}} || ${{vars.multiplexor}} && add_dep image-size
+      ${{vars.letsencrypt}} && add_dep acme-client
+      ${{vars.mqtt}} && add_dep aedes
+      ${{vars.mysql}} && add_dep mysql2
+      ${{vars.mongodb}} && add_dep @mongodb-js/saslprep && add_dep mongodb
+      ${{vars.postgres}} && add_dep pg
+      ${{vars.mariadb}} && add_dep mariadb
+      ${{vars.acebase}} && add_dep acebase
+      ${{vars.sqlite3}} && add_dep sqlite3
+      ${{vars.vault}} && add_dep node-vault
+      ${{vars.proxy}} && add_dep https-proxy-agent
+      ${{vars.smtp}} && add_dep nodemailer
+      ${{vars.crowdsec}} && add_dep @crowdsec/express-bouncer
+      ${{vars.prometheus}} && add_dep prom-client
+      ${{vars.encryption}} && add_dep archiver-zip-encrypted
+      ${{vars.googledrive}} && add_dep googleapis
+      ${{vars.webdav}} && add_dep webdav        
+      ${{vars.s3}} && add_dep minio
+      ${{vars.wildleek}} && add_dep wildleek
+      ${{vars.yubikey}} && add_dep yub
+      ${{vars.twilio}} && add_dep twilio
+      ${{vars.plivo}} && add_dep plivo
+      ${{vars.telnyx}} && add_dep telnyx
+      ${{vars.telegram}} && add_dep telegram && add_dep input
+      ${{vars.discord}} && add_dep discord.js
+      ${{vars.xmpp}} && add_dep @xmpp/client
+      ${{vars.pushover}} && add_dep node-pushover
+      ${{vars.zulip}} && add_dep zulip
+      ${{vars.webpush}} && add_dep web-push
+      ${{vars.firebase}} && add_dep firebase-admin
+      ${{vars.syslog}} && add_dep modern-syslog
+
+  - name: install dependencies
+    runs: |
+      grep -E 'html-minifier-terser|jsdom|esprima' dependencies |
+        xargs npm install -D -E --package-lock-only
+
+      npm ci
+
+  - name: translate
+    runs: |
+      cd translate
+      node translate.js extractall
+      node translate.js minifyall
+      node translate.js translateall
+
+  - name: prune dev dependencies
+    runs: |
+      npm prune --omit=dev
+
+  - uses: patch
+    with:
+      patches: paths.patch
+
+  - name: fix package.json permissions
+    runs: |
+      chmod 644 package.json
+
+  - name: package
+    runs: >
+      install -dm755 ${{targets.contextdir}}/usr/share/meshcentral;
+      tar c
+      agents/ amt/ emails/ node_modules/ public/ rdp/ views/ *.js package-lock.json package.json LICENSE
+      |tar x -C ${{targets.contextdir}}/usr/share/meshcentral
+
+update:
+  enabled: true
+  github:
+    identifier: Ylianst/MeshCentral
