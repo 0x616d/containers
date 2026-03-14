@@ -5,12 +5,6 @@ package:
   description: The evolution of spreadsheets
   copyright:
     - license: Apache-2.0
-  checks:
-    disabled:
-      - duplicate
-      - lddcheck
-      - nonlinux
-      - unsupportedarch
   dependencies:
     runtime:
       - musl-utils
