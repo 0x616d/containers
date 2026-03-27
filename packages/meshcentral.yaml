@@ -71,7 +71,47 @@ pipeline:
         tee dependencies
 
   - name: include extra dependencies
-    runs: "add_dep() {\n  _d=$(grep $1 dependencies); _t=$(mktemp -q); _n=${_d%@*}; _v=${_d##*@};\n  jq \".dependencies+={\\\"$_n\\\": \\\"$_v\\\"}\" package.json >\"$_t\" && mv \"$_t\" package.json\n}\n\n${{vars.ldap}} && add_dep ldapauth-fork\n${{vars.ssh}} && add_dep ssh2\n${{vars.captcha}} && add_dep svg-captcha\n${{vars.recording}} || ${{vars.multiplexor}} && add_dep image-size\n${{vars.letsencrypt}} && add_dep acme-client\n${{vars.mqtt}} && add_dep aedes\n${{vars.mysql}} && add_dep mysql2\n${{vars.mongodb}} && add_dep @mongodb-js/saslprep && add_dep mongodb\n${{vars.postgres}} && add_dep pg\n${{vars.mariadb}} && add_dep mariadb\n${{vars.acebase}} && add_dep acebase\n${{vars.sqlite3}} && add_dep sqlite3\n${{vars.vault}} && add_dep node-vault\n${{vars.proxy}} && add_dep https-proxy-agent\n${{vars.smtp}} && add_dep nodemailer\n${{vars.crowdsec}} && add_dep @crowdsec/express-bouncer\n${{vars.prometheus}} && add_dep prom-client\n${{vars.encryption}} && add_dep archiver-zip-encrypted\n${{vars.googledrive}} && add_dep googleapis\n${{vars.webdav}} && add_dep webdav        \n${{vars.s3}} && add_dep minio\n${{vars.wildleek}} && add_dep wildleek\n${{vars.yubikey}} && add_dep yub\n${{vars.twilio}} && add_dep twilio\n${{vars.plivo}} && add_dep plivo\n${{vars.telnyx}} && add_dep telnyx\n${{vars.telegram}} && add_dep telegram && add_dep input\n${{vars.discord}} && add_dep discord.js\n${{vars.xmpp}} && add_dep @xmpp/client\n${{vars.pushover}} && add_dep node-pushover\n${{vars.zulip}} && add_dep zulip\n${{vars.webpush}} && add_dep web-push\n${{vars.firebase}} && add_dep firebase-admin\n${{vars.syslog}} && add_dep modern-syslog\n"
+    runs: |
+      add_dep() {
+        _d=$(grep $1 dependencies); _t=$(mktemp -q); _n=${_d%@*}; _v=${_d##*@};
+        jq ".dependencies+={\"$_n\": \"$_v\"}" package.json >"$_t" &&
+          mv "$_t" package.json
+      }
+
+      ${{vars.ldap}} && add_dep ldapauth-fork
+      ${{vars.ssh}} && add_dep ssh2
+      ${{vars.captcha}} && add_dep svg-captcha
+      ${{vars.recording}} || ${{vars.multiplexor}} && add_dep image-size
+      ${{vars.letsencrypt}} && add_dep acme-client
+      ${{vars.mqtt}} && add_dep aedes
+      ${{vars.mysql}} && add_dep mysql2
+      ${{vars.mongodb}} && add_dep @mongodb-js/saslprep && add_dep mongodb
+      ${{vars.postgres}} && add_dep pg
+      ${{vars.mariadb}} && add_dep mariadb
+      ${{vars.acebase}} && add_dep acebase
+      ${{vars.sqlite3}} && add_dep sqlite3
+      ${{vars.vault}} && add_dep node-vault
+      ${{vars.proxy}} && add_dep https-proxy-agent
+      ${{vars.smtp}} && add_dep nodemailer
+      ${{vars.crowdsec}} && add_dep @crowdsec/express-bouncer
+      ${{vars.prometheus}} && add_dep prom-client
+      ${{vars.encryption}} && add_dep archiver-zip-encrypted
+      ${{vars.googledrive}} && add_dep googleapis
+      ${{vars.webdav}} && add_dep webdav
+      ${{vars.s3}} && add_dep minio
+      ${{vars.wildleek}} && add_dep wildleek
+      ${{vars.yubikey}} && add_dep yub
+      ${{vars.twilio}} && add_dep twilio
+      ${{vars.plivo}} && add_dep plivo
+      ${{vars.telnyx}} && add_dep telnyx
+      ${{vars.telegram}} && add_dep telegram && add_dep input
+      ${{vars.discord}} && add_dep discord.js
+      ${{vars.xmpp}} && add_dep @xmpp/client
+      ${{vars.pushover}} && add_dep node-pushover
+      ${{vars.zulip}} && add_dep zulip
+      ${{vars.webpush}} && add_dep web-push
+      ${{vars.firebase}} && add_dep firebase-admin
+      ${{vars.syslog}} && add_dep modern-syslog
 
   - name: install dependencies
     runs: |
@@ -100,9 +140,11 @@ pipeline:
       chmod 644 package.json
 
   - name: package
-    runs: >
-      install -dm755 ${{targets.contextdir}}/usr/share/meshcentral; tar c agents/ amt/ emails/ node_modules/ public/ rdp/ views/ *.js package-lock.json package.json LICENSE |tar x -C ${{targets.contextdir}}/usr/share/meshcentral
-
+    runs: |
+      tar c -C '${{package.srcdir}}' \
+      agents/ amt/ emails/ node_modules/ public/ rdp/ views/ *.js package-lock.json package.json LICENSE \
+      |tar x
+    working-directory: ${{targets.contextdir}}/usr/share/meshcentral
 
 update:
   enabled: true
