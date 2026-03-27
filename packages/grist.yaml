@@ -7,8 +7,8 @@ package:
     - license: Apache-2.0
   dependencies:
     runtime:
-      - musl-utils
       - bash
+      - musl-utils
       - nodejs
       - python3
 
@@ -46,23 +46,22 @@ pipeline:
 
   - name: create sandbox venv
     environment:
-     VIRTUAL_ENV: sandbox_venv3
+      VIRTUAL_ENV: sandbox_venv3
     runs: |
       uv venv "$VIRTUAL_ENV"
       uv pip install -r sandbox/requirements.txt --no-deps --compile-bytecode
 
   - name: package
-    runs: >
-      tar c
-      -C '${{package.srcdir}}'
-      --exclude '.lock'
-      --exclude 'README'
-      --exclude '*napi.node'
-      --exclude '*.a'
-      --exclude '*.o'
-      --exclude '*.glibc.node'
-      --exclude '*.md'
-      _build bin bower_components node_modules plugins sandbox sandbox_venv3 static
+    runs: |
+      tar c -C '${{package.srcdir}}' \
+      --exclude '.lock' \
+      --exclude 'README' \
+      --exclude '*napi.node' \
+      --exclude '*.a' \
+      --exclude '*.o' \
+      --exclude '*.glibc.node' \
+      --exclude '*.md' \
+      _build/ bin/ bower_components/ node_modules/ plugins/ sandbox/ sandbox_venv3/ static/ \
       |tar x
     working-directory: ${{targets.contextdir}}/usr/share/grist
 
