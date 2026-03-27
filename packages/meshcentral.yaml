@@ -141,10 +141,10 @@ pipeline:
 
   - name: package
     runs: |
-      tar c -C '${{package.srcdir}}' \
+      install -dm755 ${{targets.contextdir}}/usr/share/meshcentral
+      tar c \
       agents/ amt/ emails/ node_modules/ public/ rdp/ views/ *.js package-lock.json package.json LICENSE \
-      |tar x
-    working-directory: ${{targets.contextdir}}/usr/share/meshcentral
+      |tar x -C ${{targets.contextdir}}/usr/share/meshcentral
 
 update:
   enabled: true
