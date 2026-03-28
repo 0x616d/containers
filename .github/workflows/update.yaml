@@ -26,7 +26,7 @@ jobs:
             -v "$GITHUB_OUTPUT":/output:rw \
             -v /tmp:/tmp:rw \
             -u 0:0 \
-            ghcr.io/0x616d/melu@sha256:daf40dbac5409c887ec0650b706c6db56965e0c4cdf82d3925d49ae958c484f7 \
+            ghcr.io/0x616d/melu@sha256:b33f53ec270de626f77cf8a5dc4cd83c83fcd8d9b22dd2e452f44fef3db8e16d \
             -query-github -push -path packages 'https://github.com/${{ github.repository }}'
 
       - name: dispatch
