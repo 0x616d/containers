@@ -1,6 +1,6 @@
 package:
   name: grist
-  version: "1.7.11"
+  version: "1.7.12"
   epoch: 0
   description: The evolution of spreadsheets
   copyright:
@@ -30,7 +30,7 @@ pipeline:
   - uses: fetch
     with:
       uri: https://github.com/gristlabs/grist-core/archive/refs/tags/v${{package.version}}.tar.gz
-      expected-sha256: d7a657fe78ea5ebbb4d8bfbda18470d52dcd2151f3369f34d795452d0f814768
+      expected-sha256: 690875fe9187906b37dcffd16f64511fe0399f3b4b7fb27ac5c1b0d52abeb86d
 
   - name: install build dependencies
     runs: |
