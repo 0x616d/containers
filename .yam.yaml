@@ -1,11 +1,11 @@
 gap:
   - "."
-  - ".subpackages"
   - ".data"
   - ".pipeline"
+  - ".subpackages"
 
 sort:
-  - ".package.dependencies.runtime"
   - ".environment.contents.packages"
+  - ".package.dependencies.runtime"
 
 indent: 2
