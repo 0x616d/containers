@@ -105,12 +105,10 @@ def main():
     defaults = {
         "alpine_branch": "edge",
         "ocirepo": "apko.local",
-        "melange": "cgr.dev/chainguard/melange",
-        "apko": "cgr.dev/chainguard/apko",
         "melange_flags": "",
         "apko_flags": "",
         "melange_cachedir": "./cache/melange",
-        "apk_cachedir": "./cache/melange",
+        "apk_cachedir": "./cache/apk",
         "packages_outdir": "./out/pkg",
         "workdir": os.getcwd(),
     }
@@ -122,19 +120,15 @@ def main():
 
     sys.stdout.write(
         "rule melange-build\n"
-        + "  command = docker run --rm --privileged --name melange --hostname melange --network host"
-        + " -v '${melange_cachedir}':/cache/melange"
-        + " -v '${apk_cachedir}':/cache/apk"
-        + " -v '${packages_outdir}':/packages"
-        + " -v '${workdir}':/work"
-        + " $melange build /work/'${in}'"
+        + "  command = melange build '${workdir}/${in}'"
+        + " --namespace alpine"
         + " --arch '${arch}'"
-        + " --source-dir /work/packages/'${package}'"
-        + " --pipeline-dir /work/pipelines"
-        + " --cache-dir /cache/melange"
-        + " --apk-cache-dir /cache/apk"
-        + " --out-dir /packages"
-        + " --signing-key /work/local.rsa"
+        + " --source-dir '${workdir}/packages/${package}'"
+        + " --pipeline-dir '${workdir}/pipelines'"
+        + " --cache-dir '${melange_cachedir}'"
+        + " --apk-cache-dir '${apk_cachedir}'"
+        + " --out-dir '${packages_outdir}'"
+        + " --signing-key '${workdir}/local.rsa'"
         + " --repository-append 'https://dl-cdn.alpinelinux.org/alpine/${alpine_branch}/main'"
         + " --repository-append 'https://dl-cdn.alpinelinux.org/alpine/${alpine_branch}/community'"
         + " --package-append alpine-release ${melange_flags}"
@@ -145,21 +139,14 @@ def main():
 
     sys.stdout.write(
         "rule apko-publish\n"
-        + "  command = docker run --rm --name apko --hostname apko --network host"
-        + " -v /var/run/docker.sock:/var/run/docker.sock"
-        + " -v ~/.docker:/root/.docker"
-        + " -v '${melange_cachedir}':/cache/melange"
-        + " -v '${apk_cachedir}':/cache/apk"
-        + " -v '${packages_outdir}':/packages"
-        + " -v '${workdir}':/work"
-        + " $apko publish /work/'${in}' '${ocirepo}/${name}:${tag}-${archdn}'"
+        + "  command = apko publish '${workdir}/${in}' '${ocirepo}/${name}:${tag}-${archdn}'"
         + " --arch '${arch}'"
-        + " --cache-dir /cache/apk"
-        + " --keyring-append /work/local.rsa.pub"
-        + " --repository-append '@local /packages'"
+        + " --cache-dir '${apk_cachedir}'"
+        + " --keyring-append '${workdir}'/local.rsa.pub"
+        + " --repository-append '@local ${packages_outdir}'"
         + " --repository-append 'https://dl-cdn.alpinelinux.org/alpine/${alpine_branch}/main'"
         + " --repository-append 'https://dl-cdn.alpinelinux.org/alpine/${alpine_branch}/community'"
-        + " --package-append alpine-release ${apko_flags} | tee 'digest+${name}+${tag}+${archdn}'"
+        + " --package-append alpine-release ${apko_flags} >'digest+${name}+${tag}+${archdn}'"
         + "\n"
     )
 

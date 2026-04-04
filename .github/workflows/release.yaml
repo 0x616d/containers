@@ -45,6 +45,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
+      - name: Setup apko
+        uses: ./.github/actions/setup-apko
+
+      - name: Setup melange
+        uses: ./.github/actions/setup-melange
+
       - name: Setup signing key
         run: |
           cat > local.rsa <<EOF
@@ -53,15 +59,11 @@ jobs:
 
       - name: Login to GitHub Container Registry
         run: |
-          docker login --password-stdin -u ${{ github.repository_owner }} ghcr.io <<EOF
+          apko login ghcr.io -u '${{ github.repository_owner }}' --password-stdin <<EOF
           ${{ github.token }}
           EOF
 
       - name: Generate build.ninja
-        env:
-          ALPINE_BRANCH: edge
-          MELANGE: cgr.dev/chainguard/melange@sha256:07cdeb71fb031ce003ce5244028b6ecf9478d8dd3c81ce477a22c2ccfa9b2972  # 0.45.3
-          APKO: cgr.dev/chainguard/apko@sha256:1895a13359874db52e4bf77c0af61d32806e352d444db1f9bb3dd15d03d402ee  # 1.1.14
         run: |
           bin/mkninja >build.ninja
 
