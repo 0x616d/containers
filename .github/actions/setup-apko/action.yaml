@@ -1,0 +1,50 @@
+name: Setup apko
+
+inputs:
+  version:
+    description: Version of apko to install (latest, v1.2.1, etc.)
+    default: latest
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install apko
+      shell: bash
+      run: |
+        die() { printf '%s\n' "$*"; exit 1; }
+
+        case '${{ inputs.version }}' in
+        v*)
+          TAG='${{ inputs.version }}'
+          ;;
+        latest*)
+          tmp=$(mktemp)
+          url='https://api.github.com/repos/chainguard-dev/apko/releases/latest'
+          curl -fso "$tmp" -u ':${{ github.token }}' "$url" ||
+            die "error in github api call for latest apko release"
+          TAG=$(jq -r .tag_name <"$tmp") ||
+            die "error parsing json from $url"
+          test -n "$TAG" ||
+            die "no apko release found"
+          rm -f "$tmp"
+          ;;
+        esac
+
+        case '${{ runner.os }}' in
+        Linux) OS=linux ;;
+        macOS) OS=darwin ;;
+        *) die 'Unsupported os: ${{ runner.os }}' ;;
+        esac
+
+        case '${{ runner.arch }}' in
+        X86) ARCH=386 ;;
+        X64) ARCH=amd64 ;;
+        ARM64) ARCH=arm64 ;;
+        *) die 'Unsupported arch: ${{ runner.arch }}' ;;
+        esac
+
+        curl -fsL "https://github.com/chainguard-dev/apko/releases/download/${TAG}/apko_${TAG#v}_${OS}_${ARCH}.tar.gz" \
+          |tar xz --exclude LICENSE --strip-components=1 -C /usr/local/bin
+
+        apko version
