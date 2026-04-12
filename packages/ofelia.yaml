@@ -1,6 +1,6 @@
 package:
   name: ofelia
-  version: "0.3.21"
+  version: "0.3.22"
   epoch: 0
   description: A docker job scheduler (aka. crontab for docker)
   copyright:
@@ -10,7 +10,7 @@ pipeline:
   - uses: fetch
     with:
       uri: https://github.com/mcuadros/ofelia/archive/refs/tags/v${{package.version}}.tar.gz
-      expected-sha256: ac2bb035bbb6780187db2056cc92ec3bf66156c34c66ff76c02c8574fe0ffa0d
+      expected-sha256: a59b833ce4ee6bf1f12d99ca4a73a2b4ab1ea8e1dc9862cf2fd1155dcfb3deb8
 
   - uses: go/build
     environment:
