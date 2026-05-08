@@ -54,16 +54,6 @@ paths:
     source: /usr/share/doc/glpi/php.ini
     permissions: 0o644
 
-  - path: /usr/bin/php-cgi
-    type: symlink
-    source: php-cgi85
-    permissions: 0o755
-
-  - path: /usr/bin/php
-    type: symlink
-    source: php85
-    permissions: 0o755
-
   - path: /etc/glpi
     type: directory
     uid: 65532
