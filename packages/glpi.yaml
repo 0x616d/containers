@@ -37,6 +37,7 @@ environment:
   contents:
     packages:
       - busybox
+      - ca-certificates-bundle
 
 pipeline:
   - uses: fetch
