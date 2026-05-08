@@ -1,0 +1,58 @@
+package:
+  name: glpi
+  version: 11.0.7
+  epoch: 0
+  description: GLPI is an IT asset & service management (ITSM) web application
+  copyright:
+    - license: GPL-3.0
+  dependencies:
+    runtime:
+      - php
+      - php-bcmath
+      - php-bz2
+      - php-cgi
+      - php-ctype
+      - php-curl
+      - php-dom
+      - php-exif
+      - php-fileinfo
+      - php-gd
+      - php-iconv
+      - php-intl
+      - php-ldap
+      - php-mysqli
+      - php-mysqlnd
+      - php-openssl
+      - php-phar
+      - php-session
+      - php-simplexml
+      - php-sodium
+      - php-tokenizer
+      - php-xml
+      - php-xmlreader
+      - php-xmlwriter
+      - php-zip
+
+environment:
+  contents:
+    packages:
+      - busybox
+
+pipeline:
+  - uses: fetch
+    with:
+      uri: https://github.com/glpi-project/glpi/releases/download/${{package.version}}/glpi-${{package.version}}.tgz
+      expected-sha256: f5b8316bc502b35ddba8239de8d94dcb260b3a2e0ce6655df3f8830dfac3715d
+      delete: true
+    working-directory: ${{targets.contextdir}}/usr/share/webapps/glpi
+
+  - name: configurations
+    runs: |
+      install -Dm644 downstream.php ${{targets.contextdir}}/usr/share/webapps/glpi/inc/downstream.php
+      install -Dm644 lighttpd.conf ${{targets.contextdir}}/usr/share/doc/glpi/lighttpd.conf
+      install -Dm644 php.ini ${{targets.contextdir}}/usr/share/doc/glpi/php.ini
+
+update:
+  enabled: true
+  github:
+    identifier: glpi-project/glpi

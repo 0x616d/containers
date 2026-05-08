@@ -1,0 +1,182 @@
+contents:
+  packages:
+    - tzdata
+    - ca-certificates-bundle
+    - lighttpd
+    - php85
+    - php85-bcmath
+    - php85-bz2
+    - php85-cgi
+    - php85-ctype
+    - php85-curl
+    - php85-dom
+    - php85-exif
+    - php85-fileinfo
+    - php85-gd
+    - php85-iconv
+    - php85-intl
+    - php85-ldap
+    - php85-mysqli
+    - php85-mysqlnd
+    - php85-openssl
+    - php85-phar
+    - php85-session
+    - php85-simplexml
+    - php85-sodium
+    - php85-tokenizer
+    - php85-xml
+    - php85-xmlreader
+    - php85-xmlwriter
+    - php85-zip
+    - glpi@local
+
+entrypoint:
+  command: /usr/sbin/lighttpd -f /usr/share/doc/glpi/lighttpd.conf -D
+
+work-dir: /usr/share/webapps/glpi
+
+accounts:
+  run-as: 65532
+  users:
+    - uid: 65532
+      username: glpi
+  groups:
+    - gid: 65532
+      groupname: glpi
+
+environment:
+  PHP_FCGI_CHILDREN: 4
+  PHP_FCGI_MAX_REQUESTS: 1000
+
+paths:
+  - path: /etc/php85/conf.d/90_glpi.ini
+    type: symlink
+    source: /usr/share/doc/glpi/php.ini
+    permissions: 0o644
+
+  - path: /usr/bin/php-cgi
+    type: symlink
+    source: php-cgi85
+    permissions: 0o755
+
+  - path: /usr/bin/php
+    type: symlink
+    source: php85
+    permissions: 0o755
+
+  - path: /etc/glpi
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/log/glpi
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/cache
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/cron
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/docs
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/graphs
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/inventories
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/locales
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/lock
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/marketplace
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/pictures
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/plugins
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/rss
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/sessions
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/themes
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/tmp
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+  - path: /var/lib/glpi/uploads
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o700
+
+volumes:
+  - /etc/glpi
+  - /var/log/glpi
+  - /var/lib/glpi
+
+annotations:
+  org.opencontainers.image.title: glpi
+  dev.chainguard.package.main: glpi
