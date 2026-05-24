@@ -1,7 +1,7 @@
 package:
   name: grist
   version: "1.7.13"
-  epoch: 0
+  epoch: 1
   description: The evolution of spreadsheets
   copyright:
     - license: Apache-2.0
@@ -11,6 +11,8 @@ package:
       - musl-utils
       - nodejs
       - python3
+  options:
+    no-depends: true
 
 environment:
   contents:
@@ -18,6 +20,7 @@ environment:
       - bash
       - busybox
       - ca-certificates-bundle
+      - gcc
       - make
       - python3
       - uv
@@ -31,6 +34,10 @@ pipeline:
     with:
       uri: https://github.com/gristlabs/grist-core/archive/refs/tags/v${{package.version}}.tar.gz
       expected-sha256: e09c965651358c2a39b29f5d5924b3c53d72c6b52fd4bd235a21454a83536dbf
+
+  - uses: patch
+    with:
+      patches: python314.patch
 
   - name: install build dependencies
     runs: |
