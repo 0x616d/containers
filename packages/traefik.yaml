@@ -1,6 +1,6 @@
 package:
   name: traefik
-  version: "3.7.6"
+  version: "3.7.7"
   epoch: 0
   description: The Cloud Native Application Proxy
   copyright:
@@ -10,7 +10,7 @@ pipeline:
   - uses: fetch
     with:
       uri: https://github.com/traefik/traefik/releases/download/v${{package.version}}/traefik-v${{package.version}}.src.tar.gz
-      expected-sha256: bc97effd53f3423cebc37c783472c2d09b94dd90a805cb95e26ded71eb2fc294
+      expected-sha256: 3c132806eddbe1dc894e7341dda05beb50936688b9e558b00c3a35dc300d353a
 
   - uses: go/build
     environment:
