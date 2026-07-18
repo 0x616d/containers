@@ -1,0 +1,46 @@
+name: Setup melu
+
+inputs:
+  version:
+    description: Version of melu to install (latest, v0.2.0, etc.)
+    default: latest
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install melu
+      shell: bash
+      run: |
+        die() { printf '%s\n' "$*"; exit 1; }
+
+        case '${{ inputs.version }}' in
+        v*)
+          TAG='${{ inputs.version }}'
+          ;;
+        latest*)
+          tmp=$(mktemp)
+          url='https://api.github.com/repos/0x616d/melu/releases/latest'
+          curl -fso "$tmp" -u ':${{ github.token }}' "$url" ||
+            die "error in github api call for latest melu release"
+          TAG=$(jq -r .tag_name <"$tmp") ||
+            die "error parsing json from $url"
+          test -n "$TAG" ||
+            die "no melu release found"
+          rm -f "$tmp"
+          ;;
+        esac
+
+        case '${{ runner.os }}' in
+        Linux) OS=linux ;;
+        *) die 'Unsupported os: ${{ runner.os }}' ;;
+        esac
+
+        case '${{ runner.arch }}' in
+        X64) ARCH=amd64 ;;
+        ARM64) ARCH=arm64 ;;
+        *) die 'Unsupported arch: ${{ runner.arch }}' ;;
+        esac
+
+        curl -fsLo /usr/local/bin/melu "https://github.com/0x616d/melu/releases/download/${TAG}/melu_${OS}_${ARCH}" \
+          && chmod 755 /usr/local/bin/melu
