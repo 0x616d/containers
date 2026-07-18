@@ -68,4 +68,4 @@ runs:
       if: runner.os == 'Linux'
       shell: bash
       run: |
-        sudo apt-get -qq install bubblewrap
+        sudo apt-get -qq -o=Dpkg::Use-Pty=0 install bubblewrap
