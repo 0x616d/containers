@@ -1,0 +1,22 @@
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  release-on-update:
+    if: >-
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'update/') &&
+      endsWith(github.event.pull_request.title, 'package update')
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title='${{ github.event.pull_request.title }}'
+          gh workflow run release.yaml \
+            -R '${{ github.repository }}' \
+            -r '${{ github.event.pull_request.head.ref }}' \
+            -f "packages=${title%%/*}"
