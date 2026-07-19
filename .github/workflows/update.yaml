@@ -21,6 +21,8 @@ jobs:
 
       - name: Setup melu
         uses: ./.github/actions/setup-melu
+        with:
+          version: v0.1.0
 
       - name: Setup melange
         uses: ./.github/actions/setup-melange
