@@ -58,7 +58,7 @@ jobs:
             pr=$(gh pr create \
               --title "$p/$nv package update" \
               --label "$p,update" \
-              --body "Automatic update of $p package version to $nv"
+              --body "Automatic update of $p package version to $nv" \
               --base master)
 
             gh pr merge "${pr##*/}" --squash
