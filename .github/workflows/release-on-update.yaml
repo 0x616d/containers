@@ -1,3 +1,6 @@
+---
+name: Release on package update
+
 on:
   pull_request:
     types: [closed]
