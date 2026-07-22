@@ -58,14 +58,8 @@ jobs:
             git commit -m "$p/$nv package update"
             git push origin "update/$p-$nv"
 
-            pr=$(gh pr create \
-              --title "$p/$nv package update" \
-              --label "$p,update" \
-              --body "Automatic update of $p package version to $nv" \
-              --base master)
-
+            pr=$(gh pr create --title "$p/$nv package update" --body '')
             gh pr merge "${pr##*/}" --squash
 
             git checkout master
-            git branch -D "update/$p-$nv"
           done
