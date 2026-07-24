@@ -43,13 +43,9 @@ jobs:
               continue
             fi
 
-            melange bump "$f" "$nv" --expected-commit "$ncommit" 2>&1 \
-              |tee melange-bump.err
+            melange bump "$f" "$nv" --expected-commit "$ncommit" 2>&1 |tee melange-bump.out
             if [ $? -ne 0 ]; then
-              gh issue create \
-                --title "$p/$nv package update" \
-                --label "$p,update" \
-                --body-file melange-bump.err
+              gh issue create --title "$p/$nv package update" --body-file melange-bump.out
               continue
             fi
 
