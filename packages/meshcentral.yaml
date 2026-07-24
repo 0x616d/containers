@@ -1,6 +1,6 @@
 package:
   name: meshcentral
-  version: "1.2.2"
+  version: "1.2.4"
   epoch: 0
   description: A full computer management web site
   copyright:
@@ -60,7 +60,7 @@ pipeline:
   - uses: fetch
     with:
       uri: https://github.com/Ylianst/MeshCentral/archive/refs/tags/${{package.version}}.tar.gz
-      expected-sha256: 81c25774413d65f8d8c369f29b3b9bbcd40b59701f5af83cb2cc95e1a7a9f799
+      expected-sha256: fa32b8d43d67afbbe0afadd11e6c243c5cb68cb35ebfd71b9833733ae265abfd
 
   - uses: patch
     with:
