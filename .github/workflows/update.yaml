@@ -54,8 +54,7 @@ jobs:
             git commit -m "$p/$nv package update"
             git push origin "update/$p-$nv"
 
-            pr=$(gh pr create --title "$p/$nv package update" --body '')
-            gh pr merge "${pr##*/}" --squash
+            gh pr create --title "$p/$nv package update" --body ''
 
             git checkout master
           done
