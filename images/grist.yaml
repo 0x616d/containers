@@ -5,8 +5,7 @@ contents:
     - ca-certificates-bundle
     - grist@local
 
-entrypoint:
-  command: /usr/bin/node _build/stubs/app/server/server.js
+cmd: /usr/bin/node /usr/share/grist/_build/stubs/app/server/server.js
 
 work-dir: /usr/share/grist
 

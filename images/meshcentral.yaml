@@ -7,10 +7,7 @@ contents:
     - mariadb-client
     - meshcentral@local
 
-entrypoint:
-  command: /usr/bin/node /usr/share/meshcentral/meshcentral.js
-
-cmd: --configfile /etc/meshcentral/config.json
+cmd: /usr/bin/node /usr/share/meshcentral/meshcentral.js --configfile /etc/meshcentral/config.json
 
 work-dir: /usr/share/meshcentral
 

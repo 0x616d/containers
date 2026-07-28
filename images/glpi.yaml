@@ -30,8 +30,7 @@ contents:
     - php85-zip
     - glpi@local
 
-entrypoint:
-  command: /usr/sbin/lighttpd -f /usr/share/doc/glpi/lighttpd.conf -D
+cmd: /usr/sbin/lighttpd -f /usr/share/doc/glpi/lighttpd.conf -D
 
 work-dir: /usr/share/webapps/glpi
 
