@@ -39,6 +39,10 @@ pipeline:
     with:
       patches: python314.patch
 
+  - name: set grist edition
+    runs: |
+      echo community > grist-edition
+
   - name: install build dependencies
     runs: |
       yarn install --frozen-lockfile
