@@ -13,6 +13,7 @@ environment:
       - ca-certificates-bundle
       - gcc
       - make
+      - musl-dev
 
 pipeline:
   - uses: fetch
