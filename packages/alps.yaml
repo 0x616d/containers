@@ -1,21 +1,16 @@
 package:
   name: alps
-  version: "0_git20251126"
+  version: "1"
   epoch: 0
   description: A simple and extensible webmail
   copyright:
     - license: MIT
 
 pipeline:
-  - uses: git-checkout
+  - uses: fetch
     with:
-      repository: https://git.sr.ht/~migadu/alps
-      branch: master
-      expected-commit: bd6a860d88e9ee02fc051f8596b042e7381b38fa
-
-  - uses: patch
-    with:
-      patches: default-theme.patch
+      url: https://github.com/migadu/alps/archive/refs/tags/v${{package.version}}.tar.gz
+      expected-sha256: 11321dfd9ede5609c9cc02bcdfb55d537f330b0576589b79d2b774219e03f3ba
 
   - uses: go/build
     environment:
@@ -25,13 +20,17 @@ pipeline:
       output: alps
       strip: -s -w -buildid=
       ldflags: |
-        -X main.themesPath=/usr/share/alps/themes
-
-  - name: install themes
-    runs: |
-      mkdir -p ${{targets.contextdir}}/usr/share/alps
-      cp -a themes ${{targets.contextdir}}/usr/share/alps
+        -X main.version=${{package.version}}
+        -X main.date=$(date -d @"${SOURCE_DATE_EPOCH:-0}" -u '+%Y-%m-%dT%TZ')
 
 update:
   enabled: true
-  git: {}
+  github:
+    identifier: migadu/alps
+    strip-prefix: v
+
+test:
+  pipeline:
+    - runs: |
+        set -o pipefail
+        alps -version | grep 'alps ${{package.version}}'
