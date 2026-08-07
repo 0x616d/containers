@@ -9,7 +9,7 @@ package:
 pipeline:
   - uses: fetch
     with:
-      url: https://github.com/migadu/alps/archive/refs/tags/v${{package.version}}.tar.gz
+      uri: https://github.com/migadu/alps/archive/refs/tags/v${{package.version}}.tar.gz
       expected-sha256: 11321dfd9ede5609c9cc02bcdfb55d537f330b0576589b79d2b774219e03f3ba
 
   - uses: go/build
