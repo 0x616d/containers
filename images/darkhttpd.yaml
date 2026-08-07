@@ -1,0 +1,29 @@
+contents:
+  packages:
+    - tzdata
+    - darkhttpd@local
+
+entrypoint:
+  command: /usr/bin/darkhttpd
+
+work-dir: /var/www
+
+accounts:
+  run-as: 65532
+  users:
+    - uid: 65532
+      username: darkhttpd
+  groups:
+    - gid: 65532
+      groupname: darkhttpd
+
+paths:
+  - path: /var/www
+    type: directory
+    uid: 0
+    gid: 0
+    permissions: 0o755
+
+annotations:
+  org.opencontainers.image.title: darkhttpd
+  dev.chainguard.package.main: darkhttpd
