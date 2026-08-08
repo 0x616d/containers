@@ -30,7 +30,7 @@ pipeline:
       install -Dm755 darkhttpd ${{targets.contextdir}}/usr/bin/darkhttpd
 
 update:
-  enabled: false
+  enabled: true
   github:
     identifier: emikulic/darkhttpd
     strip-prefix: v
