@@ -35,9 +35,9 @@ pipeline:
       uri: https://github.com/gristlabs/grist-core/archive/refs/tags/v${{package.version}}.tar.gz
       expected-sha256: 6daef99b1cfe9d2bea5929dbcc7f504851738d6d323426ac76cb679740ce8931
 
-  - uses: patch
-    with:
-      patches: python314.patch
+  # - uses: patch
+  #   with:
+  #     patches: python314.patch
 
   - name: set grist edition
     runs: |
