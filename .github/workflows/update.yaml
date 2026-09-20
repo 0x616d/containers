@@ -52,9 +52,9 @@ jobs:
             git checkout -b "update/$p-$nv"
             git add "$f"
             git commit -m "$p/$nv package update"
-            git push origin "update/$p-$nv"
-
-            gh pr create --title "$p/$nv package update" --body ''
+            if git push origin "update/$p-$nv"
+            then gh pr create --title "$p/$nv package update" --body ''
+            fi
 
             git checkout master
           done
