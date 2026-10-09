@@ -1,6 +1,6 @@
 package:
   name: glpi
-  version: "11.0.11"
+  version: "12.0.0"
   epoch: 0
   description: GLPI is an IT asset & service management (ITSM) web application
   copyright:
@@ -43,7 +43,7 @@ pipeline:
   - uses: fetch
     with:
       uri: https://github.com/glpi-project/glpi/releases/download/${{package.version}}/glpi-${{package.version}}.tgz
-      expected-sha256: b918b1df4900e008cfc02d84bc9c57eae661e7075465f50b301ec5582b134de2
+      expected-sha256: 90c81d1742f5e345756089a83e7c72848bbcae130ea449c8d32f52ad63dece91
       delete: true
     working-directory: ${{targets.contextdir}}/usr/share/webapps/glpi
 
