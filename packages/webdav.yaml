@@ -1,6 +1,6 @@
 package:
   name: webdav
-  version: "5.17.2"
+  version: "5.17.3"
   epoch: 0
   description: A simple and standalone WebDAV server.
   copyright:
@@ -10,7 +10,7 @@ pipeline:
   - uses: fetch
     with:
       uri: https://github.com/hacdias/webdav/archive/refs/tags/v${{package.version}}.tar.gz
-      expected-sha256: d4d84822f0ceb5255cf7b360e33218b3ff2f0e54c2167c39a392565561a11f96
+      expected-sha256: 326b3ceac4dfe8980b6afc6592076afc2a5b753c8586e615e5f5f13af3147e2c
 
   - uses: go/build
     environment:
