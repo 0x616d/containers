@@ -1,6 +1,6 @@
 package:
   name: alps
-  version: "1"
+  version: "1.1.0"
   epoch: 0
   description: A simple and extensible webmail
   copyright:
@@ -10,7 +10,7 @@ pipeline:
   - uses: fetch
     with:
       uri: https://github.com/migadu/alps/archive/refs/tags/v${{package.version}}.tar.gz
-      expected-sha256: 11321dfd9ede5609c9cc02bcdfb55d537f330b0576589b79d2b774219e03f3ba
+      expected-sha256: f12f91f6ca3409a69ac3638468ccf1b7dfdb916448dbfd1376b737246e3c6b47
 
   - uses: go/build
     environment:
